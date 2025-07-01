@@ -1,0 +1,54 @@
+{
+  "name": "@povio/resolve-config",
+  "version": "1.0.0",
+  "bin": {
+    "ecs-deploy": "dist/sh.js"
+  },
+  "scripts": {
+    "start": "tsx ./src/sh.ts",
+    "start:dist": "node ./dist/sh.js",
+    "test": "tsx --test ./src/**/*.test.ts",
+    "test:e2e": "tsx --test ./test/**/*.test.ts",
+    "test:watch": "tsx --watch --test ./src/**/*.test.ts",
+    "build:clean": "rm -rf ./dist",
+    "build": "yarn build:clean && node ./esbuild.mjs && chmod +x ./dist/sh.js",
+    "build:check": "yarn tsc --project . --noEmit",
+    "lint": "eslint --fix",
+    "push": "yarn exec ./scripts/publish.sh"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "homepage": "https://github.com/povio/resolve-config",
+  "bugs": "https://github.com/povio/resolve-config/issues",
+  "repository": {
+    "url": "git+https://github.com/povio/resolve-config.git",
+    "type": "git"
+  },
+  "author": "Marko Zabreznik <marko.zabreznik@povio.com>",
+  "license": "BSD-3-Clause",
+  "devDependencies": {
+    "@eslint/js": "^9.30.0",
+    "@types/eslint__js": "^9.14.0",
+    "@types/node": "^24.0.8",
+    "@types/prettier": "^3.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.35.1",
+    "@typescript-eslint/parser": "^8.35.1",
+    "esbuild": "^0.25.5",
+    "eslint": "^9.30.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.5.1",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3",
+    "yaml": "^2.8.0",
+    "zod": "^3.25.67"
+  },
+  "engines": {
+    "node": ">= 22",
+    "yarn": ">= 4",
+    "npm": ">= 8"
+  },
+  "packageManager": "yarn@4.9.2"
+}

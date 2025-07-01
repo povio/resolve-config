@@ -55,7 +55,7 @@ test("env variables", async () => {
 });
 
 test("wrong function variables", async () => {
-    await resolveObject({ a: "${myfunc}-thing" }, 'path-to-object').catch((e)=>{
+    await resolveObject({ a: "${myfunc}-thing" }, {}, 'path-to-object').catch((e)=>{
         assert.deepStrictEqual(e.message, "Unsupported template literal 'path-to-object.a': 'myfunc'");
     });
 });
@@ -76,11 +76,34 @@ test("simple object", async () => {
     });
 });
 
-test("aws ssm", async () => {
+test("single property", async () => {
     process.env.TEST = "test";
+
+    const tree = {
+        a1: {
+            b2: {
+                c3: {
+                    d4: 'e',
+                    f4: ['a', 'b', 'c'],
+                }
+            }
+        },
+        g1: 'r'
+    }
+
+    assert.deepStrictEqual(await resolveObject(tree, {}, 'a1.dd'), undefined);
+    assert.deepStrictEqual(await resolveObject(tree, {}, 'g1'), 'r');
+    assert.deepStrictEqual(await resolveObject(tree, {}, 'a1.b2'), tree.a1.b2);
+    assert.deepStrictEqual(await resolveObject(tree, {}, 'a1.b2.c3'), tree.a1.b2.c3);
+    assert.deepStrictEqual(await resolveObject(tree, {}, 'a1.b2.c3.d4'), 'e'); 
+    assert.deepStrictEqual(await resolveObject(tree, {}, 'a1.b2.c3.f4'), ['a', 'b', 'c']);
+});
+
+test("aws ssm", async () => {
+    process.env.TEST = "test"; 
     const resolved = await resolveObject({
         a: "${arn:aws:ssm:::parameter/local/test}",
-    }, '', {
+    }, {
         aws: {
             accountId: "1234567890",
             region: "us-east-1",

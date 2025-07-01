@@ -8,15 +8,14 @@ import { resolveAwsArn } from "./resolve-aws";
 /**
  * Resolve a configuration file .config/${stage}.${module}.template.[yml|json]
  * 
- * Returns a tree like structure of the configuration file with promises that resolve to the value of the key.
- * 
  * @param options 
  * @param options.stage - The stage (e.g. "dev", "prod") to resolve
  * @param options.cwd - The path to the module, we search for files inside `${path}/.config/`
- * @param options.config - Configuration file to use for the resolve
+ * @param options.path - Override the path to the template file
  * @param options.module - The module to resolve 
- * @param options.format - Format of the configuration file (json, yml, env)
- * @param options.content - Directly provide the content of the configuration file (needs format to be specified) or object
+ * @param options.format - Format of the configuration file (json, yml, env), autodetected from the extension
+ * @param options.content - Override the content of the configuration file (needs format to be specified) or object
+ * @param options.property - Return only the value of the property, dot notation (e.g. "my.property")
  */
 export async function resolveTemplate(options: {
     stage?: string,
@@ -25,9 +24,12 @@ export async function resolveTemplate(options: {
     path?: string,
     format?: string,
     content?: string | any,
+    property?: string,
+    context?: Record<string, any>,
 }): Promise<any> {
     let stage = options.stage || process.env.STAGE || 'local';
     let content: string;
+    let context = { ...options.context ?? {}, stage };
     let path: string | undefined;
     if (options.content) {
         if (typeof options.content !== 'string' && typeof options.content !== 'object') {
@@ -91,12 +93,30 @@ export async function resolveTemplate(options: {
 
     // Return the tree, with each leaf either returning the value or a promise that resolves to the value
     // The promise is lazy loaded, so it will only be resolved when the value is accessed
-    return resolveObject(tree, path ? `${path}>` : '', { stage });
+    return resolveObject(tree, context, options.property, path ? `${path}>` : '', new Map());
 }
 
 const templateRegex = /\$\{([^}]+)\}/g;
 
-export async function resolveObject(obj: any, path: string = '', context?: Record<string, any>, cache: Map<string, any> = new Map()): Promise<any> {
+export async function resolveObject(obj: any, context?: Record<string, any>, property?: string, path: string = '', cache: Map<string, any> = new Map()): Promise<any> {
+
+    console.error('resolveObject', obj, property, path);
+
+    if (property) {
+        if (obj === undefined || obj === null) {
+            return obj;
+        }
+        if (typeof obj !== 'object' || Array.isArray(obj)) {
+            throw new Error(`Property '${path}.${property}' is not an object`);
+        }
+        const [key, ...subPath] = property.split('.');
+        console.error({property, key, subPath});
+        if (!(key in obj)) {
+            return undefined;
+        }
+        return resolveObject(obj[key], context, subPath.join('.'), `${path}.${key}`, cache);
+    }
+
     if (typeof obj !== 'object' || obj === null) {
         if (typeof obj === 'string') {
             if (obj.includes("${")) {
@@ -106,7 +126,7 @@ export async function resolveObject(obj: any, path: string = '', context?: Recor
                 if (matches) {
                     for (const match of matches) {
                         const templateContent = match.slice(2, -1); // Remove ${ and }
-                        const resolvedValue = await resolveTemplateLiteral(templateContent, path, context, cache);
+                        const resolvedValue = await resolveTemplateLiteral(templateContent, context, path, cache);
                         result = result.replace(match, resolvedValue ?? '');
                     }
                 }
@@ -119,18 +139,18 @@ export async function resolveObject(obj: any, path: string = '', context?: Recor
     }
 
     if (Array.isArray(obj)) {
-        return obj.map((item, i) => resolveObject(item, `${path}[${i}]`, context, cache));
+        return await Promise.all(obj.map(async (item, i) => resolveObject(item, context, undefined, `${path}[${i}]`, cache)));
     }
 
 
     const resolvedObject: any = {};
     for (const [key, value] of Object.entries(obj)) {
-        resolvedObject[key] = await resolveObject(value, `${path}.${key}`, context, cache);
+        resolvedObject[key] = await resolveObject(value, context, undefined, `${path}.${key}`, cache);
     }
     return resolvedObject;
 }
 
-async function resolveTemplateLiteral(value: string, path: string, context?: Record<string, any>, cache?: Map<string, any>) {
+async function resolveTemplateLiteral(value: string, context?: Record<string, any>, path?: string,  cache?: Map<string, any>) {
     if (value === undefined || value === null || value === '') {
         return value;
     }
@@ -138,17 +158,17 @@ async function resolveTemplateLiteral(value: string, path: string, context?: Rec
         return cache.get(value);
     }
     let result: any;
-    const [command, args] = value.trim().split(':', 2);
+    const [command, ...args] = value.trim().split(':');
     switch (command) {
         case 'env': {
-            result = process.env[args];
+            result = process.env[args.join(':')];
             break;
         }
         case 'func': {
             if (!args) {
-                throw new Error(`Missing argument '${path}' func`);
+                throw new Error(`Missing argument '${path}' func`); 
             }
-            switch (args.trim()) {
+            switch (args.join(':').trim()) {
                 case 'stage':
                     result = context?.stage ?? 'local';
                     break;

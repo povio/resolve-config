@@ -1,8 +1,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import { basename } from "node:path";
-import { readYaml } from "./read-yaml";
-import { readEnv } from "./read-env";
-import { resolveAwsArn } from "./resolve-aws";
+import { parseYaml } from "./plugin-yaml";
+import { parseEnv } from "./plugin-env";
+import { resolveAwsArn } from "./plugin-aws";
 
 
 /**
@@ -16,6 +16,8 @@ import { resolveAwsArn } from "./resolve-aws";
  * @param options.format - Format of the configuration file (json, yml, env), autodetected from the extension
  * @param options.content - Override the content of the configuration file (needs format to be specified) or object
  * @param options.property - Return only the value of the property, dot notation (e.g. "my.property")
+ * @param options.onlyResolved - Return only the resolved values in the tree (template + resolved = config)
+ * @param options.ignoreEmpty - Ignore empty values
  */
 export async function resolveTemplate(options: {
     stage?: string,
@@ -26,10 +28,12 @@ export async function resolveTemplate(options: {
     content?: string | any,
     property?: string,
     context?: Record<string, any>,
+    onlyResolved?: boolean,
+    ignoreEmpty?: boolean,
 }): Promise<any> {
     let stage = options.stage || process.env.STAGE || 'local';
     let content: string;
-    let context = { ...options.context ?? {}, stage };
+    let context = { ...options.context ?? {}, stage, onlyResolved: options.onlyResolved ?? false };
     let path: string | undefined;
     if (options.content) {
         if (typeof options.content !== 'string' && typeof options.content !== 'object') {
@@ -48,6 +52,9 @@ export async function resolveTemplate(options: {
             path = `${cwd}/.config/${stage}.${options.module}.template.json`;
         }
         if (!existsSync(path)) {
+            if (options.ignoreEmpty) {
+                return undefined;
+            }
             throw new Error(`Configuration file '${path}' not found`);
         }
         content = readFileSync(path, 'utf8');
@@ -74,14 +81,14 @@ export async function resolveTemplate(options: {
 
         switch (format) {
             case 'env':
-                tree = readEnv(content);
+                tree = parseEnv(content);
                 break;
             case 'json':
                 tree = JSON.parse(content);
                 break;
             case 'yml':
             case 'yaml':
-                tree = await readYaml(content);
+                tree = await parseYaml(content);
                 break;
             default:
                 throw new Error(`Unsupported format: ${format}`);
@@ -91,8 +98,6 @@ export async function resolveTemplate(options: {
         tree = content;
     }
 
-    // Return the tree, with each leaf either returning the value or a promise that resolves to the value
-    // The promise is lazy loaded, so it will only be resolved when the value is accessed
     return resolveObject(tree, context, options.property, path ? `${path}>` : '', new Map());
 }
 
@@ -110,7 +115,6 @@ export async function resolveObject(obj: any, context?: Record<string, any>, pro
             throw new Error(`Property '${path}.${property}' is not an object`);
         }
         const [key, ...subPath] = property.split('.');
-        console.error({property, key, subPath});
         if (!(key in obj)) {
             return undefined;
         }
@@ -134,6 +138,10 @@ export async function resolveObject(obj: any, context?: Record<string, any>, pro
             }
         }
 
+        if (context?.onlyResolved) {
+            return undefined;
+        }
+
         // return primitive values as is
         return obj;
     }
@@ -145,7 +153,10 @@ export async function resolveObject(obj: any, context?: Record<string, any>, pro
 
     const resolvedObject: any = {};
     for (const [key, value] of Object.entries(obj)) {
-        resolvedObject[key] = await resolveObject(value, context, undefined, `${path}.${key}`, cache);
+        const resolvedValue = await resolveObject(value, context, undefined, `${path}.${key}`, cache);
+        if (resolvedValue !== undefined) {
+            resolvedObject[key] = resolvedValue;
+        }
     }
     return resolvedObject;
 }

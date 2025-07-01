@@ -76,6 +76,23 @@ test("simple object", async () => {
     });
 });
 
+
+test("simple object", async () => {
+    process.env.TEST = "test";
+    const resolved = await resolveObject({
+        a: "b",
+        c: "${func:stage}",
+        d: "${env:TEST}",
+    }, {
+        onlyResolved: true,
+    });
+
+    assert.deepStrictEqual(resolved, {
+        c: "local",
+        d: "test",
+    });
+});
+
 test("single property", async () => {
     process.env.TEST = "test";
 

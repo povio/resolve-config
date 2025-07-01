@@ -3,7 +3,7 @@
  * @param content - The .env file content as a string
  * @returns Object with key-value pairs from the .env file
  */
-export function readEnv(content: string): Record<string, string> { 
+export function parseEnv(content: string): Record<string, string> { 
     const result: Record<string, string> = {};
     
     // Split content into lines and process each line

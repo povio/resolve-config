@@ -29,6 +29,9 @@
   "author": "Marko Zabreznik <marko.zabreznik@povio.com>",
   "license": "BSD-3-Clause",
   "devDependencies": {
+    "@aws-sdk/client-ssm": "^3.840.0",
+    "@aws-sdk/client-sts": "^3.840.0",
+    "@aws-sdk/credential-providers": "^3.840.0",
     "@eslint/js": "^9.30.0",
     "@types/eslint__js": "^9.14.0",
     "@types/node": "^24.0.8",

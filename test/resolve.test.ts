@@ -117,18 +117,30 @@ test("single property", async () => {
     assert.deepStrictEqual(await resolveObject(tree, {}, 'a1.b2.c3.f4'), ['a', 'b', 'c']);
 });
 
-test("aws ssm", async () => {
-    process.env.TEST = "test"; 
+const isSSMRunning = fetch("http://localhost:4566/health").then(res => res.status === 200).catch(()=>false);
+
+test("aws ssm", async (t) => {
+    
+    // test if ssm is running locally, if not, skip the test
+    if (!(await isSSMRunning)) {
+        t.skip("SSM is not running locally");
+        return;
+    }
+
     const resolved = await resolveObject({
-        a: "${arn:aws:ssm:::parameter/local/test}",
+        a: "${arn:aws:ssm:::parameter/myapp/feature/flags}",
     }, {
         aws: {
             accountId: "1234567890",
             region: "us-east-1",
+            endpoint: "http://localhost:4566",
+            credentials: {
+                accessKeyId: "test",
+                secretAccessKey: "test",
+                sessionToken: "test",
+            },
         }
     });
 
-    assert.deepStrictEqual(resolved, {
-        a: 'test', 
-    });
+    assert.deepStrictEqual(resolved, { a: '{"feature1": true, "feature2": false}'});
 });

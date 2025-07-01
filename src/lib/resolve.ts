@@ -105,8 +105,6 @@ const templateRegex = /\$\{([^}]+)\}/g;
 
 export async function resolveObject(obj: any, context?: Record<string, any>, property?: string, path: string = '', cache: Map<string, any> = new Map()): Promise<any> {
 
-    console.error('resolveObject', obj, property, path);
-
     if (property) {
         if (obj === undefined || obj === null) {
             return obj;
@@ -191,7 +189,7 @@ async function resolveTemplateLiteral(value: string, context?: Record<string, an
             break;
         }
         case 'arn':
-            result = await resolveAwsArn(args.join(':'), context?.aws);
+            result = await resolveAwsArn(value.trim(), context?.aws);
             break;
         default:
             throw new Error(`Unsupported template literal '${path}': '${value}'`);

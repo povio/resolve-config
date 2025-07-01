@@ -88,7 +88,8 @@ test("single property", async () => {
                 }
             }
         },
-        g1: 'r'
+        g1: 'r',
+        p: "${myfunc}" // should not be resolved
     }
 
     assert.deepStrictEqual(await resolveObject(tree, {}, 'a1.dd'), undefined);

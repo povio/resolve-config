@@ -172,13 +172,15 @@ async function resolveTemplateLiteral(value: string, context?: Record<string, an
                 case 'stage':
                     result = context?.stage ?? 'local';
                     break;
+                case "timestamp":
+                    return new Date().toISOString();
                 default:
                     throw new Error(`Unsupported function '${path}': ${value}`);
             }
             break;
         }
         case 'arn':
-            result = await resolveAwsArn(args, context?.aws);
+            result = await resolveAwsArn(args.join(':'), context?.aws);
             break;
         default:
             throw new Error(`Unsupported template literal '${path}': '${value}'`);

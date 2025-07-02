@@ -50,14 +50,20 @@ export async function resolveTemplate(options: {
                 throw new Error('Stage and module are required when path is not provided');
             }
             
-            path = resolve(`${cwd}/.config/${stage}.${options.module}.template`);
+            path = resolve(`${cwd}/.config/${stage}.${options.module}`);
 
             if (!options.format) {
                 // try all possible formats
-                for (const format of ['json', 'yml', 'yaml', 'env']) {
+                for (const format of [
+                    'json', 'yml', 'yaml', 'env'
+                ]) {
                     if (existsSync(`${path}.${format}`)) {
                         options.format = format;
                         path += `.${format}`; 
+                        break;
+                    } else if (existsSync(`${path}.template.${format}`)) {
+                        options.format = format;
+                        path += `.template.${format}`; 
                         break;
                     }
                 }
@@ -114,12 +120,12 @@ export async function resolveTemplate(options: {
         tree = content;
     }
 
-    return resolveObject(tree, context, options.property, path ? `${path}>` : '', new Map());
+    return resolveTemplateObject(tree, context, options.property, path ? `${path}>` : '', new Map());
 }
 
 const templateRegex = /\$\{([^}]+)\}/g;
 
-export async function resolveObject(obj: any, context?: Record<string, any>, property?: string | null, path: string = '', cache: Map<string, any> = new Map()): Promise<any> {
+export async function resolveTemplateObject(obj: any, context?: Record<string, any>, property?: string | null, path: string = '', cache: Map<string, any> = new Map()): Promise<any> {
 
     if (property) {
         if (obj === undefined || obj === null) {
@@ -132,7 +138,7 @@ export async function resolveObject(obj: any, context?: Record<string, any>, pro
         if (!(key in obj)) {
             return undefined;
         }
-        return resolveObject(obj[key], context, subPath.join('.'), `${path}.${key}`, cache);
+        return resolveTemplateObject(obj[key], context, subPath.join('.'), `${path}.${key}`, cache);
     }
 
     if (typeof obj !== 'object' || obj === null) {
@@ -161,21 +167,24 @@ export async function resolveObject(obj: any, context?: Record<string, any>, pro
     }
 
     if (Array.isArray(obj)) {
-        return await Promise.all(obj.map(async (item, i) => resolveObject(item, context, undefined, `${path}[${i}]`, cache)));
+        return await Promise.all(obj.map(async (item, i) => resolveTemplateObject(item, context, undefined, `${path}[${i}]`, cache)));
     }
 
 
     const resolvedObject: any = {};
     for (const [key, value] of Object.entries(obj)) {
-        const resolvedValue = await resolveObject(value, context, undefined, `${path}.${key}`, cache);
+        const resolvedValue = await resolveTemplateObject(value, context, undefined, `${path}.${key}`, cache);
         if (resolvedValue !== undefined) {
             resolvedObject[key] = resolvedValue;
         }
     }
+    if (Object.keys(resolvedObject).length === 0) {
+        return undefined;
+    }
     return resolvedObject;
 }
 
-async function resolveTemplateLiteral(value: string, context?: Record<string, any>, path?: string,  cache?: Map<string, any>) {
+export async function resolveTemplateLiteral(value: string, context?: Record<string, any>, path?: string,  cache?: Map<string, any>) {
     if (value === undefined || value === null || value === '') {
         return value;
     }

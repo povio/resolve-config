@@ -1,6 +1,6 @@
 import { z } from "zod/v4-mini";
 import { getArgs } from "src/helpers/args";
-import { resolveTemplate } from "src/lib/resolve";
+import { resolveTemplate } from "src/lib/resolve-template";
 import { renderTemplate } from "src/lib/render";
 
 const schema = z.object({
@@ -9,6 +9,8 @@ const schema = z.object({
   module: z.nullable(z.optional(z.string())),
   path: z.nullable(z.optional(z.string())),
   format: z.nullable(z.optional(z.string())),
+
+  config: z.nullable(z.optional(z.string())),
 
   property: z.nullable(z.optional(z.string())),
   onlyResolved: z.nullable(z.optional(z.boolean())),

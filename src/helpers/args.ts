@@ -10,7 +10,8 @@ export function getArgs<T extends ZodMiniType<any, any, any>>(argv: string[], op
         args: argv,
         // convert zod types to parseArgs option
         options: Object.fromEntries(
-            Object.entries((options.config as any).shape).map(([key, { def }]) => {
+            Object.entries((options.config as any).shape).map(([key, value]) => {
+                let def = (value as any).def as any
                 let type = def.type;
                 let node = def;
                 while (!['boolean', 'string', 'number'].includes(type)) {

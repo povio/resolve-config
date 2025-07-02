@@ -17,3 +17,5 @@ node_modules
 
 # packages
 povio-resolve-config-*
+
+*.resolved.yml

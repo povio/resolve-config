@@ -39,7 +39,7 @@ export async function getSSMInstance(config: { region?: string;
 }
 
 
-export async function resolveAwsArn(name: string, config: {
+export async function resolveAwsArn(name: string, config?: {
   credentials?: {
     accessKeyId: string;
     secretAccessKey: string;
@@ -50,8 +50,6 @@ export async function resolveAwsArn(name: string, config: {
   endpoint?: string;
 }) {
 
-  console.log(config);
-
   const { GetParameterCommand } = await import("@aws-sdk/client-ssm");
 
   const match = name.match(SSMRegEx);
@@ -59,9 +57,9 @@ export async function resolveAwsArn(name: string, config: {
     throw new Error(`Could not parse parameter arn: '${name}'`);
   }
   
-  const region = match?.groups?.region || config.region || process.env.AWS_REGION;
+  const region = match?.groups?.region || config?.region || process.env.AWS_REGION;
 
-  const ssm = await getSSMInstance({ credentials: config.credentials, region, endpoint: config.endpoint });
+  const ssm = await getSSMInstance({ credentials: config?.credentials, region, endpoint: config?.endpoint });
 
   let response;
   try {

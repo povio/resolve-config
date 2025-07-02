@@ -2,4 +2,4 @@ mysection:
   myparameter: "myvalue"
 
 customsection:
-  myparameter: "${func:stage}" 
+  myparameter: "${func:stage}"

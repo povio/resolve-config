@@ -24,6 +24,7 @@ export async function renderTemplate( tree: any, options: {
         case 'json':
             return JSON.stringify(tree, null, 2);
         case 'yaml':
+        case 'yml':
             return await dumpYaml(tree);
         case 'env':
         default:

@@ -1,0 +1,5 @@
+mysection:
+  myparameter: "myvalue"
+
+customsection:
+  myparameter: "${func:stage}" 

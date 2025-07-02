@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
-import { basename } from "node:path";
+import { basename, resolve } from "node:path";
 import { parseYaml } from "./plugin-yaml";
 import { parseEnv } from "./plugin-env";
 import { resolveAwsArn } from "./plugin-aws";
@@ -20,16 +20,16 @@ import { resolveAwsArn } from "./plugin-aws";
  * @param options.ignoreEmpty - Ignore empty values
  */
 export async function resolveTemplate(options: {
-    stage?: string,
-    cwd?: string,
-    module?: string,
-    path?: string,
-    format?: string,
-    content?: string | any,
-    property?: string,
-    context?: Record<string, any>,
-    onlyResolved?: boolean,
-    ignoreEmpty?: boolean,
+    stage?: string | null,
+    cwd?: string | null,
+    module?: string | null,
+    path?: string | null,
+    format?: string | null,
+    content?: string | any | null,
+    property?: string | null,
+    context?: Record<string, any> | null,
+    onlyResolved?: boolean | null,
+    ignoreEmpty?: boolean | null,
 }): Promise<any> {
     let stage = options.stage || process.env.STAGE || 'local';
     let content: string;
@@ -42,21 +42,37 @@ export async function resolveTemplate(options: {
         content = options.content;
         path = undefined;
     } else {
+        const cwd = options.cwd || process.cwd();
         if (options.path) {
-            path = options.path;
+            path = resolve(cwd, options.path);
         } else {
             if (!stage || !options.module) {
                 throw new Error('Stage and module are required when path is not provided');
             }
-            const cwd = options.cwd || process.cwd();
-            path = `${cwd}/.config/${stage}.${options.module}.template.json`;
+            
+            path = resolve(`${cwd}/.config/${stage}.${options.module}.template`);
+
+            if (!options.format) {
+                // try all possible formats
+                for (const format of ['json', 'yml', 'yaml', 'env']) {
+                    if (existsSync(`${path}.${format}`)) {
+                        options.format = format;
+                        path += `.${format}`; 
+                        break;
+                    }
+                }
+            } else {
+                path += `.${options.format}`;
+            }
         }
+
         if (!existsSync(path)) {
             if (options.ignoreEmpty) {
                 return undefined;
             }
             throw new Error(`Configuration file '${path}' not found`);
         }
+        
         content = readFileSync(path, 'utf8');
     }
 
@@ -103,7 +119,7 @@ export async function resolveTemplate(options: {
 
 const templateRegex = /\$\{([^}]+)\}/g;
 
-export async function resolveObject(obj: any, context?: Record<string, any>, property?: string, path: string = '', cache: Map<string, any> = new Map()): Promise<any> {
+export async function resolveObject(obj: any, context?: Record<string, any>, property?: string | null, path: string = '', cache: Map<string, any> = new Map()): Promise<any> {
 
     if (property) {
         if (obj === undefined || obj === null) {

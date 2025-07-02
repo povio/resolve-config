@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
-import { resolveCommand } from "./commands/resolve";
+import { resolveCommand } from "./commands/resolve.command";
 
-// Extract the subcommand and remaining args
 const [command, ...args] = process.argv.slice(2);
 
 if (!command) {

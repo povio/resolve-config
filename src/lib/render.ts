@@ -9,10 +9,18 @@ import { dumpYaml } from "./plugin-yaml";
  * @param options.output - The output format (json, yml, env)
  */
 export async function renderTemplate( tree: any, options: {
-
-    output?: string,
+    outputFormat?: string | null,
 }): Promise<any> {
-    switch (options.output) {
+
+    if (!options.outputFormat) {
+        options.outputFormat = 'env';
+    }
+
+    if (typeof tree === 'string') {
+        return tree;
+    }
+
+    switch (options.outputFormat) {
         case 'json':
             return JSON.stringify(tree, null, 2);
         case 'yaml':

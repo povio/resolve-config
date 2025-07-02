@@ -25,6 +25,10 @@ configs:
           secretAccessKey: "test"
     
     values:
+
+      - name: "@"
+        templateModule: aws
+
         # simple value mapping
       - name: feature_flags
         objectFrom: arn:aws:ssm:::parameter/myapp/feature/flags

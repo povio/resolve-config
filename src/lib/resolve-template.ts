@@ -123,7 +123,7 @@ export async function resolveTemplate(options: {
     return resolveTemplateObject(tree, context, options.property, path ? `${path}>` : '', new Map());
 }
 
-const templateRegex = /\$\{([^}]+)\}/g;
+const templateRegex = /\$(?<mutator>[a-z]+)?\{(?<value>[^}]+)\}/g;
 
 export async function resolveTemplateObject(obj: any, context?: Record<string, any>, property?: string | null, path: string = '', cache: Map<string, any> = new Map()): Promise<any> {
 
@@ -143,15 +143,32 @@ export async function resolveTemplateObject(obj: any, context?: Record<string, a
 
     if (typeof obj !== 'object' || obj === null) {
         if (typeof obj === 'string') {
-            if (obj.includes("${")) {
+            if (obj.includes("$")) {
                 // Use regex to find all template literals and resolve them
                 let result = obj;
-                const matches = obj.match(templateRegex);
+                const matches = obj.matchAll(templateRegex);
                 if (matches) {
-                    for (const match of matches) {
-                        const templateContent = match.slice(2, -1); // Remove ${ and }
-                        const resolvedValue = await resolveTemplateLiteral(templateContent, context, path, cache);
-                        result = result.replace(match, resolvedValue ?? '');
+                    for (const match of [...matches]) {
+                        const { mutator, value } = match.groups as any; 
+                        const resolvedValue = await resolveTemplateLiteral(value, context, path, cache);
+                        switch (mutator) {
+                            case 'object':
+                                if (result === match[0]) {
+                                    result = resolvedValue ? JSON.parse(resolvedValue) : '';
+                                } else {
+                                    result = result.replace(match[0], resolvedValue ? JSON.parse(resolvedValue) : '');
+                                }
+                                break;
+                            case undefined:
+                                if (result === match[0]) {
+                                    result = resolvedValue;
+                                } else {
+                                    result = result.replace(match[0], resolvedValue ?? '');
+                                }
+                                break;
+                            default:
+                                throw new Error(`Unsupported mutator '${mutator}' in '${path}'`);
+                        }
                     }
                 }
                 return result;

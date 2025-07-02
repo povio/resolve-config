@@ -18,7 +18,7 @@ const isSSMRunning = fetch("http://localhost:4566").then(res => res.status === 2
 
 
 test("resolve config with ssm", async (t) => {
-    
+     
      // test if ssm is running locally, if not, skip the test
      if (!(await isSSMRunning)) {
         t.skip("SSM is not running locally");

@@ -11,6 +11,7 @@ const schema = z.object({
   format: z.nullable(z.optional(z.string())),
 
   config: z.nullable(z.optional(z.string())),
+  target: z.nullable(z.optional(z.string())),
 
   property: z.nullable(z.optional(z.string())),
   onlyResolved: z.nullable(z.optional(z.boolean())),

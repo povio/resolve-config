@@ -35,7 +35,6 @@ yarn resolve get myapp-dev.backend.resolved --outputFormat yml
 
 # long form
 yarn resolve get --stage myapp-dev --module backend --target resolved --property database.password --outputFormat yml
-
 ```
 
 ### SDK
@@ -118,4 +117,13 @@ section4:
    # secretblock:
    #   val: 1
    secretblock: $object{arn:aws:ssm:::parameter/myapp/feature/block}
+```
+
+## Env overrides
+
+Env overrides can be applied at each step using `__` separated paths:
+
+```bash
+# apply override at the end of each target
+CONFIG__database__name=myapp yarn resolve
 ```

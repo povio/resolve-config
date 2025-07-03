@@ -39,6 +39,25 @@ yarn resolve get --stage myapp-dev --module backend --target resolved --property
 
 ### SDK
 
+```typescript
+import { loadConfig, resolveConfig } from '@povio/resolve-config';
+
+// will only load sync values
+const config1 = loadConfig({
+    stage: process.env.STAGE,
+    module: 'backend',
+    target: 'resolved'
+});
+
+// will load async values
+const config2 = await resolveConfig({
+    stage: process.env.STAGE,
+    module: 'backend',
+    target: 'bootstrap',
+});
+
+```
+
 ## Configuration
 
 `.config/[stage].[module].yml`, eq `.config/myapp-dev.config.yml`

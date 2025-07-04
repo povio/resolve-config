@@ -1,5 +1,6 @@
 import { test } from "node:test";
 import { resolveConfig } from "../src/lib/resolve-config";
+import assert from "node:assert";
 
 const cwd = __dirname;
 
@@ -10,6 +11,20 @@ test("resolve config", async () => {
     cwd,
     module: "deploy",
     target: "api",
+  });
+
+  assert.deepStrictEqual(resolved, {
+    api: {
+      customsection: {
+        myparameter: "dev",
+      },
+      database: {
+        host: "localhost",
+      },
+      mysection: {
+        myparameter: "myvalue",
+      },
+    },
   });
 });
 
@@ -24,7 +39,7 @@ test("resolve config with ssm", async (t) => {
     return;
   }
 
-  const resolved = await resolveConfig({
+  await resolveConfig({
     stage: "dev",
     cwd,
     module: "deploy",

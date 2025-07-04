@@ -43,13 +43,13 @@ yarn resolve get --stage myapp-dev --module backend --target resolved --property
 import { loadConfig, resolveConfig } from '@povio/resolve-config';
 
 // will only load sync values
-const config1 = loadConfig({
+const config1 = resolveConfigSync({
     stage: process.env.STAGE,
     module: 'backend',
     target: 'resolved'
 });
 
-// will load async values
+// will load all values
 const config2 = await resolveConfig({
     stage: process.env.STAGE,
     module: 'backend',

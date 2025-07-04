@@ -1,0 +1,30 @@
+configs:
+
+  - name: bootstrap
+    destination: ./.config/myapp-dev.api.resolved.yml
+    values:
+      - name: "@"
+        templateModule: api.template
+        onlyResolved: true
+    context:
+      aws:
+        accountId: "1234567890"
+        region: "us-east-1"
+        endpoint: "http://localhost:4566"
+        credentials:
+          accessKeyId: "test"
+          secretAccessKey: "test"
+
+  - name: resolved
+    values:
+      - name: "@"
+        templateModule: api.template
+        skipResolved: true
+        
+      - name: "@"
+        templateModule: api.resolved
+        ignoreEmpty: true
+      
+      - name: "@"
+        templateModule: api.override
+        ignoreEmpty: true

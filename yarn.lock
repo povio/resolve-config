@@ -886,6 +886,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@httptoolkit/esm@npm:^3.3.1":
+  version: 3.3.2
+  resolution: "@httptoolkit/esm@npm:3.3.2"
+  checksum: 10c0/16495aeaf705f2be8cf8665b3e2c8c1e92a876b1c5a16923f8197f692290827cc17e11f00fae955f4dd24c0c0dfd286f52d961f1d025595e1d50107d1dab3115
+  languageName: node
+  linkType: hard
+
 "@humanfs/core@npm:^0.19.1":
   version: 0.19.1
   resolution: "@humanfs/core@npm:0.19.1"
@@ -1028,6 +1035,7 @@ __metadata:
     eslint: "npm:^9.30.0"
     eslint-config-prettier: "npm:^10.1.5"
     eslint-plugin-prettier: "npm:^5.5.1"
+    import-sync: "npm:^2.2.3"
     prettier: "npm:^3.6.2"
     tsx: "npm:^4.20.3"
     typescript: "npm:^5.8.3"
@@ -2515,6 +2523,15 @@ __metadata:
     parent-module: "npm:^1.0.0"
     resolve-from: "npm:^4.0.0"
   checksum: 10c0/bf8cc494872fef783249709385ae883b447e3eb09db0ebd15dcead7d9afe7224dad7bd7591c6b73b0b19b3c0f9640eb8ee884f01cfaf2887ab995b0b36a0cbec
+  languageName: node
+  linkType: hard
+
+"import-sync@npm:^2.2.3":
+  version: 2.2.3
+  resolution: "import-sync@npm:2.2.3"
+  dependencies:
+    "@httptoolkit/esm": "npm:^3.3.1"
+  checksum: 10c0/07e26fcc5842672299cedaf1b943101b0eba5cc8c52f744b12a2c3090116063840236229141b11bcb20cf724f6fc63de546a7dbed1201081287cf8c547f25085
   languageName: node
   linkType: hard
 

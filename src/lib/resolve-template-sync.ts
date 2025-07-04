@@ -19,7 +19,7 @@ import {
  * @param options.resolve - What to resolve
  * @param options.ignoreEmpty - Ignore empty values
  */
-export async function resolveTemplate(options: {
+export function resolveTemplateSync(options: {
   stage?: string | null;
   cwd?: string | null;
   module?: string | null;
@@ -37,7 +37,7 @@ export async function resolveTemplate(options: {
     return undefined;
   }
 
-  return resolveTemplateObject(
+  return resolveTemplateObjectSync(
     resolvedTemplateContent?.tree,
     {
       ...(options.context ?? {}),
@@ -50,13 +50,13 @@ export async function resolveTemplate(options: {
   );
 }
 
-export async function resolveTemplateObject(
+export function resolveTemplateObjectSync(
   obj: any,
   context?: Record<string, any>,
   property?: string | null,
   path: string = "",
   cache: Map<string, any> = new Map(),
-): Promise<any> {
+): any {
   if (property) {
     // filter down to a single property
 
@@ -70,7 +70,7 @@ export async function resolveTemplateObject(
     if (!(key in obj)) {
       return undefined;
     }
-    return resolveTemplateObject(
+    return resolveTemplateObjectSync(
       obj[key],
       context,
       subPath.join("."),
@@ -83,22 +83,20 @@ export async function resolveTemplateObject(
     // sub-tree
 
     if (Array.isArray(obj)) {
-      return await Promise.all(
-        obj.map(async (item, i) =>
-          resolveTemplateObject(
-            item,
-            context,
-            undefined,
-            `${path}[${i}]`,
-            cache,
-          ),
+      return obj.map((item, i) =>
+        resolveTemplateObjectSync(
+          item,
+          context,
+          undefined,
+          `${path}[${i}]`,
+          cache,
         ),
       );
     }
 
     const resolvedObject: any = {};
     for (const [key, value] of Object.entries(obj)) {
-      const resolvedValue = await resolveTemplateObject(
+      const resolvedValue = resolveTemplateObjectSync(
         value,
         context,
         undefined,
@@ -130,12 +128,12 @@ export async function resolveTemplateObject(
       let result = obj;
       for (const match of matches) {
         const { mutator, value } = match.groups as any;
-        const resolvedValue = await resolveTemplateLiteral(
+        const resolvedValue = resolveTemplateLiteral(
           value,
           context,
           path,
           cache,
-          true,
+          false,
         );
         result = mutateLiteral(mutator, result, match[0], resolvedValue, path);
       }

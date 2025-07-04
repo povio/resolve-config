@@ -1,9 +1,11 @@
-export async function parseYaml(content: string): Promise<any> {
-  const yaml = await import("yaml");
+import importSync from "import-sync";
+
+export function parseYaml(content: string) {
+  const yaml = importSync("yaml");
   return yaml.parse(content);
 }
 
-export async function dumpYaml(obj: any): Promise<string> {
-  const yaml = await import("yaml");
+export function dumpYaml(obj: any) {
+  const yaml = importSync("yaml");
   return yaml.stringify(obj);
 }

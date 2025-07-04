@@ -1,14 +1,14 @@
 import deepmerge from "deepmerge";
-import { resolveTemplate } from "./resolve-template";
 import { resolveTemplateLiteral } from "./template";
 import { resolveResolveConfigs } from "./config";
 import { applyConfigFile } from "./apply";
+import { resolveTemplateSync } from "./resolve-template-sync";
 import { mergeIntoTree } from "./merge";
 
 /**
  * Resolve a configuration file using a resolve-config configuration file
  */
-export async function resolveConfig(options: {
+export function resolveConfigSync(options: {
   stage?: string | null;
   cwd?: string | null;
   module?: string | null;
@@ -40,24 +40,24 @@ export async function resolveConfig(options: {
       if (value.value) {
         resolvedValue = value.value;
       } else if (value.valueFrom) {
-        resolvedValue = await resolveTemplateLiteral(
+        resolvedValue = resolveTemplateLiteral(
           value.valueFrom,
           deepmerge(options?.context ?? {}, context ?? {}),
-          undefined,
+          value.name,
           cache,
-          true,
+          false,
         );
       } else if (value.objectFrom) {
-        resolvedValue = await resolveTemplateLiteral(
+        resolvedValue = resolveTemplateLiteral(
           value.objectFrom,
           deepmerge(options?.context ?? {}, context ?? {}),
-          undefined,
+          value.name,
           cache,
-          true,
+          false,
         );
         resolvedValue = JSON.parse(resolvedValue);
       } else if (value.templateModule || value.templatePath) {
-        resolvedValue = await resolveTemplate({
+        resolvedValue = resolveTemplateSync({
           stage,
           cwd: options.cwd,
           module: value.templateModule,

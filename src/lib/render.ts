@@ -7,7 +7,7 @@ import { dumpYaml } from "./plugin-yaml";
  * @param options
  * @param options.output - The output format (json, yml, env)
  */
-export async function renderTemplate(
+export function renderTemplate(
   tree: any,
   options: {
     outputFormat?: string | null;
@@ -26,7 +26,7 @@ export async function renderTemplate(
       return JSON.stringify(tree, null, 2);
     case "yaml":
     case "yml":
-      return await dumpYaml(tree);
+      return dumpYaml(tree);
     case "env":
     default:
       return generateDotEnv(tree);

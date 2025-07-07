@@ -2,12 +2,12 @@ configs:
 
   - name: api
     destination: ./.config/myapp-dev.api.resolved.yml
-    
+
     values:
       - name: "@"
         templateModule: api.template
         onlyResolved: true
-        
+
       - name: database__host
         valueFrom: env:DATABASE_HOST
 
@@ -23,7 +23,7 @@ configs:
         credentials:
           accessKeyId: "test"
           secretAccessKey: "test"
-    
+
     values:
 
       - name: "@"
@@ -32,6 +32,6 @@ configs:
         # simple value mapping
       - name: feature_flags
         objectFrom: arn:aws:ssm:::parameter/myapp/feature/flags
-        
+
       - name: database__host
         valueFrom: env:DATABASE_HOST

@@ -20,11 +20,11 @@ configs:
       - name: "@"
         templateModule: api.template
         skipResolved: true
-        
+
       - name: "@"
         templateModule: api.resolved
         ignoreEmpty: true
-      
+
       - name: "@"
         templateModule: api.override
         ignoreEmpty: true

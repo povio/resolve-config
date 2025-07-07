@@ -14,16 +14,14 @@ test("resolve config", async () => {
   });
 
   assert.deepStrictEqual(resolved, {
-    api: {
-      customsection: {
-        myparameter: "dev",
-      },
-      database: {
-        host: "localhost",
-      },
-      mysection: {
-        myparameter: "myvalue",
-      },
+    customsection: {
+      myparameter: "dev",
+    },
+    database: {
+      host: "localhost",
+    },
+    mysection: {
+      myparameter: "myvalue",
     },
   });
 });

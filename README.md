@@ -1,40 +1,54 @@
 # ResolveConfig
 
+Resolve config files using templates.
+
+Install locally:
+
+```bash
+yarn add -D @povio/resolve-config
+```
+
+Use in CLI
+
+```bash
+yarn dlx @povio/resolve-config@1.0 apply
+```
+
 ### CLI
 
 Generate environment files based on a config file
 
 ```bash
 # default, stage=local module=config
-yarn resolve apply
+yarn resolve-config apply
 
 # short form, [stage].[module]
-yarn resolve apply myapp-dev.backend
+yarn resolve-config apply myapp-dev.backend
 
 # custom stage/module, resolves into .config/myapp-dev.backend.yml
-yarn resolve apply --stage myapp-dev --module backend
+yarn resolve-config apply --stage myapp-dev --module backend
 
 # by path and stage
-yarn resolve apply --path .config/myapp-dev.backend.yml --stage myapp-dev
+yarn resolve-config apply --path .config/myapp-dev.backend.yml --stage myapp-dev
 
 # only 1 target
-yarn resolve apply myapp-dev.backend --target bootstrap
+yarn resolve-config apply myapp-dev.backend --target bootstrap
 ```
 
 Get values/trees from resolved targets
 
 ```bash
 # short form
-yarn resolve get myapp-dev.backend.resolved
+yarn resolve-config get myapp-dev.backend.resolved
 
 # specify property to return
-yarn resolve get myapp-dev.backend.resolved:database.password
+yarn resolve-config get myapp-dev.backend.resolved:database.password
 
 # specify output format in  json | env | yml
-yarn resolve get myapp-dev.backend.resolved --outputFormat yml
+yarn resolve-config get myapp-dev.backend.resolved --outputFormat yml
 
 # long form
-yarn resolve get --stage myapp-dev --module backend --target resolved --property database.password --outputFormat yml
+yarn resolve-config get --stage myapp-dev --module backend --target resolved --property database.password --outputFormat yml
 ```
 
 ### SDK
@@ -136,13 +150,4 @@ section4:
    # secretblock:
    #   val: 1
    secretblock: $object{arn:aws:ssm:::parameter/myapp/feature/block}
-```
-
-## Env overrides
-
-Env overrides can be applied at each step using `__` separated paths:
-
-```bash
-# apply override at the end of each target
-CONFIG__database__name=myapp yarn resolve
 ```

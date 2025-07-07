@@ -5,7 +5,7 @@ const cwd = __dirname;
 
 test("resolve sync config", () => {
   process.env.DATABASE_HOST = "localhost";
-  const configs = resolveConfigSync({
+  resolveConfigSync({
     stage: "dev",
     cwd,
     module: "deploy",

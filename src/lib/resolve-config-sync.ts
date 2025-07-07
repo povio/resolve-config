@@ -90,5 +90,9 @@ export function resolveConfigSync(options: {
     }
   }
 
+  if (options.target) {
+    return configs[options.target];
+  }
+
   return configs;
 }

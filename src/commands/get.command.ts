@@ -61,21 +61,22 @@ export async function getCommandHelper(args: {
 }) {
   // todo shorthand
 
-  const configs = await resolveConfig({
+  let config = await resolveConfig({
     stage: args.stage,
     cwd: args.cwd,
     module: args.module,
     path: args.path,
     target: args.target,
     apply: false,
-    verbose: args.verbose,
   });
 
-  const target = args.target || "default";
+  if (!args.target) {
+    config = config["default"];
+  }
 
   if (args.property) {
     const property = args.property.split(/\.|__/);
-    let result = configs[target];
+    let result = config;
     for (const key of property) {
       if (result[key] === undefined) {
         return { output: undefined };
@@ -85,5 +86,5 @@ export async function getCommandHelper(args: {
     return { output: result };
   }
 
-  return { output: configs[target] };
+  return { output: config };
 }

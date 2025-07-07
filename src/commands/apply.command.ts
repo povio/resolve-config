@@ -53,6 +53,5 @@ export async function applyCommandHelper(args: {
     path: args.path,
     target: args.target,
     apply: true,
-    verbose: args.verbose,
   });
 }

@@ -90,5 +90,9 @@ export async function resolveConfig(options: {
     }
   }
 
+  if (options.target) {
+    return configs[options.target];
+  }
+
   return configs;
 }

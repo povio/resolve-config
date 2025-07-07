@@ -2,7 +2,7 @@
   "name": "@povio/resolve-config",
   "version": "1.0.0",
   "bin": {
-    "ecs-deploy": "dist/sh.js"
+    "resolve-config": "dist/sh.js"
   },
   "scripts": {
     "start": "tsx ./src/sh.ts",
@@ -11,11 +11,16 @@
     "test:e2e": "tsx --test ./test/**/*.test.ts",
     "test:watch": "tsx --watch --test ./src/**/*.test.ts",
     "build:clean": "rm -rf ./dist",
-    "build": "yarn build:clean && node ./esbuild.mjs && chmod +x ./dist/sh.js",
+    "build": "yarn build:clean && tsup",
     "build:check": "yarn tsc --project . --noEmit",
     "lint": "eslint --fix",
     "push": "yarn exec ./scripts/publish.sh"
   },
+  "main": "./dist/index.js",
+  "exports": {
+    ".":  "./dist/index.js"
+  },
+  "types": "./dist/index.d.ts",
   "files": [
     "dist",
     "README.md"
@@ -33,17 +38,17 @@
     "@aws-sdk/client-sts": "^3.840.0",
     "@aws-sdk/credential-providers": "^3.840.0",
     "@eslint/js": "^9.30.0",
-    "@types/eslint__js": "^9.14.0",
+    "@swc/core": "^1.12.9",
     "@types/node": "^24.0.8",
     "@types/prettier": "^3.0.0",
     "@typescript-eslint/eslint-plugin": "^8.35.1",
     "@typescript-eslint/parser": "^8.35.1",
     "deepmerge": "^4.3.1",
-    "esbuild": "^0.25.5",
     "eslint": "^9.30.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-prettier": "^5.5.1",
     "prettier": "^3.6.2",
+    "tsup": "^8.5.0",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3",
     "yaml": "^2.8.0",

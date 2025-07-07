@@ -5,7 +5,7 @@ configs:
     values:
       - name: "@"
         templateModule: api.template
-        onlyResolved: true
+        resolve: only
     context:
       aws:
         accountId: "1234567890"

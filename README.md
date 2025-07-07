@@ -5,7 +5,7 @@ Resolve config files using templates.
 Install locally:
 
 ```bash
-yarn add -D @povio/resolve-config
+yarn add @povio/resolve-config
 ```
 
 Use in CLI
@@ -142,8 +142,29 @@ section2:
 section3:
   fromenv: ${env:APP_ENV}
 
-# AWS SSM Values
-section4:
+
+```
+
+## Plugins
+
+### AWS
+
+Install dependencies
+
+```bash
+yarn add @aws-sdk/client-ssm  @aws-sdk/client-sts  @aws-sdk/credential-providers
+```
+
+Use in CLI
+
+```bash
+yarn dlx -p @aws-sdk/client-ssm -p @aws-sdk/client-sts -p @aws-sdk/credential-providers @povio/resolve-config@1.0 apply
+```
+
+Use in resolver:
+
+```yml
+section:
    # Fetch value from SSM
    secret: ${arn:aws:ssm:::parameter/myapp/feature/flags}
    # Expand a JSON vaule into a object, eq

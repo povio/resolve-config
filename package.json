@@ -1,9 +1,7 @@
 {
   "name": "@povio/resolve-config",
-  "version": "1.0.1",
-  "bin": {
-    "resolve-config": "dist/sh.js"
-  },
+  "version": "1.0.2",
+  "bin": "dist/sh.js",
   "scripts": {
     "start": "tsx ./src/sh.ts",
     "start:dist": "node ./dist/sh.js",
@@ -18,7 +16,7 @@
   },
   "main": "./dist/index.js",
   "exports": {
-    ".":  "./dist/index.js"
+    ".": "./dist/index.js"
   },
   "types": "./dist/index.d.ts",
   "files": [
@@ -33,18 +31,23 @@
   },
   "author": "Marko Zabreznik <marko.zabreznik@povio.com>",
   "license": "BSD-3-Clause",
+  "peerDependencies": {
+    "@aws-sdk/client-ssm": "^3.840.0",
+    "@aws-sdk/client-sts": "^3.840.0",
+    "@aws-sdk/credential-providers": "^3.840.0"
+  },
   "devDependencies": {
     "@aws-sdk/client-ssm": "^3.840.0",
     "@aws-sdk/client-sts": "^3.840.0",
     "@aws-sdk/credential-providers": "^3.840.0",
-    "@eslint/js": "^9.30.0",
+    "@eslint/js": "^9.30.1",
     "@swc/core": "^1.12.9",
-    "@types/node": "^24.0.8",
+    "@types/node": "^24.0.10",
     "@types/prettier": "^3.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.35.1",
-    "@typescript-eslint/parser": "^8.35.1",
+    "@typescript-eslint/eslint-plugin": "^8.36.0",
+    "@typescript-eslint/parser": "^8.36.0",
     "deepmerge": "^4.3.1",
-    "eslint": "^9.30.0",
+    "eslint": "^9.30.1",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-prettier": "^5.5.1",
     "prettier": "^3.6.2",
@@ -52,7 +55,7 @@
     "tsx": "^4.20.3",
     "typescript": "^5.8.3",
     "yaml": "^2.8.0",
-    "zod": "^3.25.67"
+    "zod": "^3.25.75"
   },
   "engines": {
     "node": ">= 22",

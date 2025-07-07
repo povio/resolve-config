@@ -1,6 +1,5 @@
-import { fromNodeProviderChain } from "@aws-sdk/credential-providers";
-import { GetParameterCommand } from "@aws-sdk/client-ssm";
-import { SSMClient } from "@aws-sdk/client-ssm";
+
+
 
 const SSMRegEx =
   /arn:aws:ssm:(?<region>[^:]+)?:(?<accountId>\d+)?:parameter\/(?<path>.*)/;
@@ -13,6 +12,8 @@ export async function getCredentials(config: {
   };
   region?: string;
 }) {
+  const { fromNodeProviderChain } = await import("@aws-sdk/credential-providers");
+
   return await fromNodeProviderChain({
     //...any input of fromEnv(), fromSSO(), fromTokenFile(), fromIni(),
     // fromProcess(), fromInstanceMetadata(), fromContainerMetadata()
@@ -30,6 +31,7 @@ export async function getSSMInstance(config: {
   };
   endpoint?: string;
 }) {
+  const { SSMClient } = await import("@aws-sdk/client-ssm");
   return new SSMClient({
     credentials: config.credentials
       ? config.credentials
@@ -55,6 +57,8 @@ export async function resolveAwsArn(
     endpoint?: string;
   },
 ) {
+  const { GetParameterCommand } = await import ("@aws-sdk/client-ssm");
+
   const match = name.match(SSMRegEx);
   if (!match?.groups?.path) {
     throw new Error(`Could not parse parameter arn: '${name}'`);

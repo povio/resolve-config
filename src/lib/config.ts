@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { parseYaml } from "./plugin-yaml";
-import { z } from "zod/v4-mini";
+import * as z from "zod/v4-mini";
 
 export const ConfigItemValue = z.object({
   name: z.string(),
@@ -18,7 +18,7 @@ export const ConfigItemValue = z.object({
 
 export const ConfigItem = z.object({
   name: z.nullable(z.optional(z.string())),
-  destination: z.string(),
+  destination: z.nullable(z.optional(z.string())),
   destinationFormat: z.nullable(z.optional(z.string())),
   template: z.nullable(z.optional(z.string())),
   values: z.array(ConfigItemValue),
@@ -51,10 +51,11 @@ export function resolveResolveConfigs(options: {
   const mod = options.module || "config";
   let rawConfigs: z.input<typeof ConfigItems>;
   const stage = options.stage || process.env.STAGE || "local";
+  let path: string | undefined;
   if (options.configs) {
     rawConfigs = options.configs;
   } else {
-    let path = options.path
+    path = options.path
       ? resolve(cwd, options.path)
       : resolve(`${cwd}/.config/${stage}.${mod}`);
     let format: string | undefined;
@@ -85,5 +86,9 @@ export function resolveResolveConfigs(options: {
         throw new Error(`Unsupported format: ${format}`);
     }
   }
-  return { items: ConfigItems.parse(rawConfigs), stage, module: mod, cwd };
+  try {
+    return { items: ConfigItems.parse(rawConfigs), stage, module: mod, cwd };
+  } catch (e: any) {
+    throw new Error(`Invalid configuration file ${path}`, { cause: e });
+  }
 }

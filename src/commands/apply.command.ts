@@ -1,4 +1,4 @@
-import { z } from "zod/v4-mini";
+import * as z from "zod/v4-mini";
 import { getArgs } from "src/helpers/args";
 import { resolveConfig } from "../lib/resolve-config";
 
@@ -8,29 +8,43 @@ const schema = z.object({
   module: z.nullable(z.optional(z.string())),
   path: z.nullable(z.optional(z.string())),
   target: z.nullable(z.optional(z.string())),
+  verbose: z.nullable(z.optional(z.boolean())),
 });
 
 export async function applyCommand(argv: string[]) {
+  let args;
   try {
-    await applyCommandHelper(argv);
-  } catch (error) {
-    console.error(error);
+    args = getArgs(argv, {
+      config: schema,
+      envs: {
+        stage: "STAGE",
+      },
+    });
+    await applyCommandHelper(args);
+  } catch (error: any) {
+    if (error.name === "$ZodError") {
+      console.error(z.prettifyError(error));
+    } else {
+      console.error(`✖ ${error.message || error.toString()}`);
+    }
+    if (args?.verbose) {
+      console.error(error);
+    }
     process.exit(1);
   }
 }
 
 /**
- * Resolve a configuration
- *  - returns the result in stdout as json
+ * Apply a configuration
  */
-export async function applyCommandHelper(argv: string[]) {
-  const args = getArgs(argv, {
-    config: schema,
-    envs: {
-      stage: "STAGE",
-    },
-  });
-
+export async function applyCommandHelper(args: {
+  stage?: string | null;
+  cwd?: string | null;
+  module?: string | null;
+  path?: string | null;
+  target?: string | null;
+  verbose?: boolean | null;
+}) {
   await resolveConfig({
     stage: args.stage,
     cwd: args.cwd,
@@ -38,5 +52,6 @@ export async function applyCommandHelper(argv: string[]) {
     path: args.path,
     target: args.target,
     apply: true,
+    verbose: args.verbose,
   });
 }

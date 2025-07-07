@@ -1,11 +1,9 @@
-import importSync from "import-sync";
+import { parse, stringify } from "yaml";
 
 export function parseYaml(content: string) {
-  const yaml = importSync("yaml");
-  return yaml.parse(content);
+  return parse(content);
 }
 
 export function dumpYaml(obj: any) {
-  const yaml = importSync("yaml");
-  return yaml.stringify(obj);
+  return stringify(obj);
 }

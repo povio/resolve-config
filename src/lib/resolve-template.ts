@@ -83,7 +83,7 @@ export async function resolveTemplateObject(
     // sub-tree
 
     if (Array.isArray(obj)) {
-      return await Promise.all(
+      const array = (await Promise.all(
         obj.map(async (item, i) =>
           resolveTemplateObject(
             item,
@@ -93,7 +93,8 @@ export async function resolveTemplateObject(
             cache,
           ),
         ),
-      );
+      )).filter((item) => item !== undefined);
+      return array.length > 0 ? array : undefined;
     }
 
     const resolvedObject: any = {};

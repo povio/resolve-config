@@ -132,6 +132,24 @@ test("template remove resolved", async () => {
   });
 });
 
+test("template with array - only resolved", async () => {
+  process.env.TEST = "test";
+  const resolved = await resolveTemplateObject({
+    a: [
+      'a', 'b', 'c',
+    ],
+    c: "${func:stage}",
+    d: "${env:TEST}",
+  }, {
+    resolve: "only",
+  });
+
+  assert.deepStrictEqual(resolved, {
+    c: "local",
+    d: "test",
+  });
+});
+
 test("template with single property", async () => {
   process.env.TEST = "test";
 

@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert";
 import { resolveTemplateObjectSync } from "../src/lib/resolve-template-sync";
+import {resolveTemplateObject} from "../src/lib/resolve-template";
 
 test("sync template with literal", () => {
   const resolved = resolveTemplateObjectSync("simple string");
@@ -127,6 +128,24 @@ test("sync template remove resolved", () => {
 
   assert.deepStrictEqual(resolved, {
     a: "b",
+  });
+});
+
+test("sync template with array - only resolved", () => {
+  process.env.TEST = "test";
+  const resolved = resolveTemplateObjectSync({
+    a: [
+      'a', 'b', 'c',
+    ],
+    c: "${func:stage}",
+    d: "${env:TEST}",
+  }, {
+    resolve: "only",
+  });
+
+  assert.deepStrictEqual(resolved, {
+    c: "local",
+    d: "test",
   });
 });
 

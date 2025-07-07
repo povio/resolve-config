@@ -6,9 +6,11 @@ export function getArgs<T extends ZodMiniType<any, any, any>>(
   options: {
     config: T;
     envs: Partial<Record<keyof output<T>, string>>;
+    shorthand?: RegExp;
   },
 ): output<T> {
-  const { values } = parseArgs({
+  const { values, positionals } = parseArgs({
+    allowPositionals: true,
     args: argv,
     // convert zod types to parseArgs option
     options: Object.fromEntries(
@@ -41,6 +43,19 @@ export function getArgs<T extends ZodMiniType<any, any, any>>(
     for (const [key, name] of Object.entries(options.envs)) {
       if (name && name in env) {
         (values as any)[key] = env[name];
+      }
+    }
+  }
+
+  if (options.shorthand && positionals.length > 0) {
+    const match = options.shorthand.exec(positionals[0]);
+    if (!match) {
+      throw new Error(`Invalid shorthand, use syntax: ${options.shorthand}`);
+    } else {
+      for (const [key, value] of Object.entries(match.groups ?? {})) {
+        if (value) {
+          (values as any)[key] = value;
+        }
       }
     }
   }

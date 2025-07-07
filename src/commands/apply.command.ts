@@ -16,6 +16,7 @@ export async function applyCommand(argv: string[]) {
   try {
     args = getArgs(argv, {
       config: schema,
+      shorthand: /(?<stage>[^.]+)\.(?<module>[^.]+)/,
       envs: {
         stage: "STAGE",
       },

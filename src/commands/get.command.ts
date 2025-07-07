@@ -23,6 +23,7 @@ export async function getCommand(argv: string[]) {
   try {
     args = getArgs(argv, {
       config: schema,
+      shorthand: /(?<stage>[^.]+)\.(?<module>[^.]+)\.(?<target>[^.]+)/,
       envs: {
         stage: "STAGE",
       },

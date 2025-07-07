@@ -16,7 +16,6 @@ export async function resolveConfig(options: {
   target?: string | null;
   context?: Record<string, any> | null;
   apply?: boolean | null;
-  verbose?: boolean | null;
 }) {
   const { items, stage, cwd } = resolveResolveConfigs(options);
 

@@ -81,7 +81,7 @@ export function resolveConfigSync(options: {
 
     configs[name || "default"] = tree;
 
-    if (options.apply) {
+    if (destination && options.apply) {
       applyConfigFile(tree, {
         cwd,
         destination,

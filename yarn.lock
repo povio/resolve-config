@@ -1253,6 +1253,13 @@ __metadata:
     "@aws-sdk/client-ssm": ^3.840.0
     "@aws-sdk/client-sts": ^3.840.0
     "@aws-sdk/credential-providers": ^3.840.0
+  peerDependenciesMeta:
+    "@aws-sdk/client-ssm":
+      optional: true
+    "@aws-sdk/client-sts":
+      optional: true
+    "@aws-sdk/credential-providers":
+      optional: true
   bin:
     resolve-config: dist/sh.js
   languageName: unknown

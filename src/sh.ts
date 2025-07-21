@@ -1,4 +1,4 @@
-#!/bin/env node
+#!/usr/bin/env node
 
 import { templateCommand } from "./commands/template.command";
 import { applyCommand } from "./commands/apply.command";

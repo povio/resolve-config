@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { parseYaml } from "./plugin-yaml";
-import * as z from "zod/v4-mini";
+import * as z from "zod/mini";
 
 export const ConfigItemValue = z.object({
   name: z.string(),

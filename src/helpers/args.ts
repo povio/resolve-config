@@ -1,4 +1,4 @@
-import { ZodMiniType, output } from "zod/v4-mini";
+import { ZodMiniType, output } from "zod/mini";
 import { parseArgs } from "node:util";
 
 export function getArgs<T extends ZodMiniType<any, any, any>>(

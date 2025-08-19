@@ -1,11 +1,11 @@
 export function generateDotEnv(
   data: Record<string, any>,
   options?: {
-    format?: "json" | '__'
-    prefix?: string,
-  }
+    format?: "json" | "__";
+    prefix?: string;
+  },
 ): string {
-  return generateDotEnvArray(data, options).join('\n');
+  return generateDotEnvArray(data, options).join("\n");
 }
 
 /**
@@ -19,9 +19,9 @@ export function generateDotEnv(
 export function generateDotEnvArray(
   data: Record<string, any>,
   options?: {
-    format?: "json" | '__'
-    prefix?: string,
-  }
+    format?: "json" | "__";
+    prefix?: string;
+  },
 ): string[] {
   return Object.entries(data)
     .flatMap(([_key, value]) => {
@@ -36,21 +36,24 @@ export function generateDotEnvArray(
             return generateDotEnvArray(value, {
               format: "__",
               prefix: `${key}__`,
-            })
+            });
           case "json":
           default:
-            return [`${key}='${JSON.stringify(value)
-              .replace(/'/g, "\'")
-              .replace(/\r?\n/g, "\\n")}'`]
+            return [
+              `${key}='${JSON.stringify(value)
+                .replace(/'/g, "'")
+                .replace(/\r?\n/g, "\\n")}'`,
+            ];
         }
-
       }
-      return [`${key}="${value
-        .toString()
-        // escape quotes
-        .replace(/"/g, '\"')
-        //  and newlines
-        .replace(/\r?\n/g, "\\n")}"`];
+      return [
+        `${key}="${value
+          .toString()
+          // escape quotes
+          .replace(/"/g, '"')
+          //  and newlines
+          .replace(/\r?\n/g, "\\n")}"`,
+      ];
     })
-    .filter((x) => x !== undefined)
+    .filter((x) => x !== undefined);
 }

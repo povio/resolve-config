@@ -1,2 +1,1 @@
-
 another_flag: $object{arn:aws:ssm:::parameter/myapp/feature/flags}

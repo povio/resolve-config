@@ -17,5 +17,5 @@
     "skipLibCheck": true,
     "noImplicitAny": true
   },
-  "include": ["src/**/*.ts", "test/**/*.test.ts"],
+  "include": ["src/**/*.ts", "test/**/*.test.ts"]
 }

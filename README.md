@@ -54,22 +54,21 @@ yarn resolve-config get --stage myapp-dev --module backend --target resolved --p
 ### SDK
 
 ```typescript
-import { loadConfig, resolveConfig } from '@povio/resolve-config';
+import { loadConfig, resolveConfig } from "@povio/resolve-config";
 
 // will only load sync values
 const config1 = resolveConfigSync({
-    stage: process.env.STAGE,
-    module: 'backend',
-    target: 'resolved'
+  stage: process.env.STAGE,
+  module: "backend",
+  target: "resolved",
 });
 
 // will load all values
 const config2 = await resolveConfig({
-    stage: process.env.STAGE,
-    module: 'backend',
-    target: 'bootstrap',
+  stage: process.env.STAGE,
+  module: "backend",
+  target: "bootstrap",
 });
-
 ```
 
 ## Configuration
@@ -82,46 +81,44 @@ configs:
     # where to write the resulting file
     destination: ./.config/myapp-dev.api.resolved.yml
     values:
-
       # render the root from a template
       - name: "@"
         templateModule: api.template
-        resolve: 'only'
-        
+        resolve: "only"
+
       # override a variable from an env value
       - name: database__host
         valueFrom: env:DATABASE_HOST
-        
+
       - name: database__username
         value: myapp
-      
+
       - name: feature_flags
         # expand json into object
         objectFrom: arn:aws:ssm:::parameter/myapp/feature/flags
-        
+
     # context that plugins can use
     context:
       aws:
         accountId: "1234567890"
         region: "us-east-1"
-    
+
   - name: resolved
     values:
       # use the template without resolved items
       - name: "@"
         templateModule: api.template
-        resolve: 'none'
-        
+        resolve: "none"
+
       # override with resolved items
       - name: "@"
         templateModule: api.resolved
         ignoreEmpty: true
-        
+
       # optional overrides
       - name: "@"
         templateModule: api.override
         ignoreEmpty: true
-
 ```
 
 ## Templates
@@ -141,8 +138,6 @@ section2:
 # environment
 section3:
   fromenv: ${env:APP_ENV}
-
-
 ```
 
 ## Plugins
@@ -165,10 +160,10 @@ Use in resolver:
 
 ```yml
 section:
-   # Fetch value from SSM
-   secret: ${arn:aws:ssm:::parameter/myapp/feature/flags}
-   # Expand a JSON vaule into a object, eq
-   # secretblock:
-   #   val: 1
-   secretblock: $object{arn:aws:ssm:::parameter/myapp/feature/block}
+  # Fetch value from SSM
+  secret: ${arn:aws:ssm:::parameter/myapp/feature/flags}
+  # Expand a JSON vaule into a object, eq
+  # secretblock:
+  #   val: 1
+  secretblock: $object{arn:aws:ssm:::parameter/myapp/feature/block}
 ```

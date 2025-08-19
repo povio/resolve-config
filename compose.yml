@@ -2,12 +2,12 @@ services:
   localstack:
     image: localstack/localstack:latest
     ports:
-      - "4566:4566"            # LocalStack main port
-      - "4510-4559:4510-4559"  # External service port range
+      - "4566:4566" # LocalStack main port
+      - "4510-4559:4510-4559" # External service port range
     environment:
       - DEBUG=1
       - AWS_DEFAULT_REGION=us-east-1
       - SERVICES=ssm,secretsmanager,sts,iam
     volumes:
-      - "./scripts/localstack/setup-ssm-parameters.sh:/etc/localstack/init/ready.d/setup-ssm-parameters.sh"  # ready hook
+      - "./scripts/localstack/setup-ssm-parameters.sh:/etc/localstack/init/ready.d/setup-ssm-parameters.sh" # ready hook
       - "/var/run/docker.sock:/var/run/docker.sock"

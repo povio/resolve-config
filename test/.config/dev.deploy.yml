@@ -1,5 +1,4 @@
 configs:
-
   - name: api
     destination: ./.config/myapp-dev.api.resolved.yml
 
@@ -10,7 +9,6 @@ configs:
 
       - name: database__host
         valueFrom: env:DATABASE_HOST
-
 
   - name: aws
     destination: ./.config/myapp-dev.aws.resolved.yml
@@ -25,7 +23,6 @@ configs:
           secretAccessKey: "test"
 
     values:
-
       - name: "@"
         templateModule: aws
 

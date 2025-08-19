@@ -1,6 +1,3 @@
-
-
-
 const SSMRegEx =
   /arn:aws:ssm:(?<region>[^:]+)?:(?<accountId>\d+)?:parameter\/(?<path>.*)/;
 
@@ -12,7 +9,9 @@ export async function getCredentials(config: {
   };
   region?: string;
 }) {
-  const { fromNodeProviderChain } = await import("@aws-sdk/credential-providers");
+  const { fromNodeProviderChain } = await import(
+    "@aws-sdk/credential-providers"
+  );
 
   return await fromNodeProviderChain({
     //...any input of fromEnv(), fromSSO(), fromTokenFile(), fromIni(),
@@ -57,7 +56,7 @@ export async function resolveAwsArn(
     endpoint?: string;
   },
 ) {
-  const { GetParameterCommand } = await import ("@aws-sdk/client-ssm");
+  const { GetParameterCommand } = await import("@aws-sdk/client-ssm");
 
   const match = name.match(SSMRegEx);
   if (!match?.groups?.path) {

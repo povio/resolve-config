@@ -1,5 +1,4 @@
 configs:
-
   - name: bootstrap
     destination: ./.config/myapp-dev.api.resolved.yml
     values:

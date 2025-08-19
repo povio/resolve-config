@@ -83,15 +83,17 @@ export function resolveTemplateObjectSync(
     // sub-tree
 
     if (Array.isArray(obj)) {
-      const array = obj.map((item, i) =>
-        resolveTemplateObjectSync(
-          item,
-          context,
-          undefined,
-          `${path}[${i}]`,
-          cache,
-        ),
-      ).filter((item) => item !== undefined);
+      const array = obj
+        .map((item, i) =>
+          resolveTemplateObjectSync(
+            item,
+            context,
+            undefined,
+            `${path}[${i}]`,
+            cache,
+          ),
+        )
+        .filter((item) => item !== undefined);
       return array.length > 0 ? array : undefined;
     }
 

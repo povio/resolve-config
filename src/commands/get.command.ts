@@ -1,6 +1,8 @@
 import * as z from "zod/mini";
 import { getArgs } from "src/helpers/args";
 import { resolveConfig } from "../lib/resolve-config";
+import { generateDotEnv } from "../lib/plugin-dotenv";
+import { dumpYaml } from "../lib/plugin-yaml";
 
 const schema = z.object({
   stage: z.nullable(z.optional(z.string())),
@@ -12,7 +14,7 @@ const schema = z.object({
   // Return only value or subtree of a resolved config
   property: z.nullable(z.optional(z.string())),
 
-  // Override the returning format. Options: `yml`, `json`, or `env`
+  // Override the returning format. Options: `yml`, `json`, `env-json`, or `env`
   outputFormat: z.nullable(z.optional(z.string())),
 
   verbose: z.nullable(z.optional(z.boolean())),
@@ -59,8 +61,6 @@ export async function getCommandHelper(args: {
   outputFormat?: string | null;
   verbose?: boolean | null;
 }) {
-  // todo shorthand
-
   let config = await resolveConfig({
     stage: args.stage,
     cwd: args.cwd,
@@ -86,5 +86,18 @@ export async function getCommandHelper(args: {
     return { output: result };
   }
 
-  return { output: config };
+  switch (args.outputFormat) {
+    case "yaml":
+    case "yml":
+      return { output: dumpYaml(config) };
+    case "env-json":
+      return { output: generateDotEnv(config, { format: "json" }) };
+    case "env":
+    case "__":
+      return { output: generateDotEnv(config, { format: "__" }) };
+    case "json":
+    default: {
+      return { output: config };
+    }
+  }
 }

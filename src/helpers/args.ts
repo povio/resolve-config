@@ -1,6 +1,9 @@
 import { ZodMiniType, output } from "zod/mini";
 import { parseArgs } from "node:util";
 
+/**
+ * Parse command line arguments into a validated object
+ */
 export function getArgs<T extends ZodMiniType<any, any, any>>(
   argv: string[],
   options: {

@@ -18,6 +18,51 @@ test("resolve single template file", async () => {
   });
 });
 
+test("resolve single template file as yml", async () => {
+  const response = await templateCommandHandler({
+    stage: "dev",
+    cwd,
+    module: "api",
+    outputFormat: "yml",
+  });
+  assert.partialDeepStrictEqual(
+    response.output,
+    `mysection:
+  myparameter: myvalue
+customsection:
+  myparameter: dev
+`,
+  );
+});
+
+test("resolve single template file as yml", async () => {
+  const response = await templateCommandHandler({
+    stage: "dev",
+    cwd,
+    module: "api",
+    outputFormat: "env-json",
+  });
+  assert.partialDeepStrictEqual(
+    response.output,
+    `mysection='{"myparameter":"myvalue"}'
+customsection='{"myparameter":"dev"}'`,
+  );
+});
+
+test("resolve single template file as yml", async () => {
+  const response = await templateCommandHandler({
+    stage: "dev",
+    cwd,
+    module: "api",
+    outputFormat: "env",
+  });
+  assert.partialDeepStrictEqual(
+    response.output,
+    `mysection__myparameter="myvalue"
+customsection__myparameter="dev"`,
+  );
+});
+
 test("resolve single subtree in template file", async () => {
   const response = await templateCommandHandler({
     stage: "dev",

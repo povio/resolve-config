@@ -6,6 +6,18 @@ import { resolveAwsArn } from "./plugin-aws";
 
 export const templateRegex = /\$(?<mutator>[a-z]+)?\{(?<value>[^}]+)\}/g;
 
+/**
+ * Mutates a literal string based on the specified mutator type by
+ *  replacing or resolving matched substrings
+ *
+ * @param {string} mutator - The type of mutator to use. Supports "object" or undefined.
+ * @param {string} input - The input string to mutate.
+ * @param {string} matched - The substring within the input to match and potentially replace.
+ * @param {any} resolved - The resolved value used as a replacement for the matched substring.
+ * @param {string} path - The path used for error reporting when mutator type is unsupported.
+ * @return {string} The mutated literal as a string after applying the specified mutator logic.
+ * @throws {Error} If the mutator type is unsupported.
+ */
 export function mutateLiteral(
   mutator: string,
   input: string,
@@ -14,19 +26,20 @@ export function mutateLiteral(
   path: string,
 ) {
   switch (mutator) {
-    case "object":
+    case "object": {
       if (input === matched) {
         return resolved ? JSON.parse(resolved) : "";
       } else {
         return input.replace(matched, resolved ? JSON.parse(resolved) : "");
       }
-    case undefined:
+    }
+    case undefined: {
       if (input === matched) {
         return resolved;
       } else {
         return input.replace(matched, resolved ?? "");
       }
-      break;
+    }
     default:
       throw new Error(`Unsupported mutator '${mutator}' in '${path}'`);
   }

@@ -13,22 +13,21 @@ export function renderTemplate(
     outputFormat?: string | null;
   },
 ) {
-  if (!options.outputFormat) {
-    options.outputFormat = "json";
-  }
-
   if (typeof tree === "string") {
     return tree;
   }
 
   switch (options.outputFormat) {
-    case "json":
-      return JSON.stringify(tree, null, 2);
     case "yaml":
     case "yml":
       return dumpYaml(tree);
+    case "env-json":
+      return generateDotEnv(tree, { format: "json" });
     case "env":
+    case "__":
+      return generateDotEnv(tree, { format: "__" });
+    case "json":
     default:
-      return generateDotEnv(tree);
+      return JSON.stringify(tree, null, 2);
   }
 }

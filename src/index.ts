@@ -6,5 +6,10 @@ export { resolveConfigSync } from "./lib/resolve-config-sync";
 
 export { renderTemplate } from "./lib/render";
 
-export { generateDotEnvArray, generateDotEnv } from "./lib/plugin-dotenv";
-export { parseEnv } from "./lib/plugin-env";
+export {
+  generateDotEnvArray,
+  generateDotEnv,
+  generateDotEnvPairs,
+} from "./lib/plugin-dotenv";
+
+export { parseEnv, applyEnv } from "./lib/plugin-env";

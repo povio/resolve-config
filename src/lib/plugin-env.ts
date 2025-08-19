@@ -1,3 +1,5 @@
+import { generateDotEnvPairs } from "./plugin-dotenv";
+
 /**
  * Parse .env file content into a data structure
  * @param content - The .env file content as a string
@@ -41,4 +43,16 @@ export function parseEnv(content: string): Record<string, string> {
   }
 
   return result;
+}
+
+/**
+ * Apply config object to process.env
+ */
+export function applyEnv(
+  data: Record<string, any>,
+  format: "json" | "__",
+): void {
+  for (const [k, v] of generateDotEnvPairs(data, { format })) {
+    process.env[k] = v;
+  }
 }

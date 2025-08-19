@@ -78,6 +78,20 @@ test("template with simple object", async () => {
   });
 });
 
+test("template null missing value", async () => {
+  process.env.TEST = "test";
+  const resolved = await resolveTemplateObject({
+    a: "b",
+    c: "${func:stage}",
+    d: "${env:NO_VALUE}",
+  });
+
+  assert.deepStrictEqual(resolved, {
+    a: "b",
+    c: "local",
+  });
+});
+
 test("template keep only resolved", async () => {
   process.env.TEST = "test";
   const resolved = await resolveTemplateObject(
@@ -134,15 +148,16 @@ test("template remove resolved", async () => {
 
 test("template with array - only resolved", async () => {
   process.env.TEST = "test";
-  const resolved = await resolveTemplateObject({
-    a: [
-      'a', 'b', 'c',
-    ],
-    c: "${func:stage}",
-    d: "${env:TEST}",
-  }, {
-    resolve: "only",
-  });
+  const resolved = await resolveTemplateObject(
+    {
+      a: ["a", "b", "c"],
+      c: "${func:stage}",
+      d: "${env:TEST}",
+    },
+    {
+      resolve: "only",
+    },
+  );
 
   assert.deepStrictEqual(resolved, {
     c: "local",

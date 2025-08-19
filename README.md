@@ -39,16 +39,19 @@ Get values/trees from resolved targets
 
 ```bash
 # short form
-yarn resolve-config get myapp-dev.backend.resolved
+yarn resolve-config get myapp-dev.config.resolved
 
 # specify property to return
-yarn resolve-config get myapp-dev.backend.resolved:database.password
+yarn resolve-config get myapp-dev.config.resolved:database.password
 
 # specify output format in  json | env | yml
-yarn resolve-config get myapp-dev.backend.resolved --outputFormat yml
+yarn resolve-config get myapp-dev.config.resolved --outputFormat yml
 
 # long form
-yarn resolve-config get --stage myapp-dev --module backend --target resolved --property database.password --outputFormat yml
+yarn resolve-config get --stage myapp-dev --module config --target resolved --property database.password --outputFormat yml
+
+# specify list of keys and apply them as env
+eval `yarn start get dev.config.resolved --outputFormat env --keys mysection.myparameter  --cwd ./test --prefix 'export '`
 ```
 
 ### SDK

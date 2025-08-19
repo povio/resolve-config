@@ -3,6 +3,7 @@ import { getArgs } from "src/helpers/args";
 import { resolveConfig } from "../lib/resolve-config";
 import { generateDotEnv } from "../lib/plugin-dotenv";
 import { dumpYaml } from "../lib/plugin-yaml";
+import { filterObjectByKeys } from "../lib/filter-keys";
 
 const schema = z.object({
   stage: z.nullable(z.optional(z.string())),
@@ -14,8 +15,13 @@ const schema = z.object({
   // Return only value or subtree of a resolved config
   property: z.nullable(z.optional(z.string())),
 
+  // Return only specified keys while preserving paths (comma-separated list)
+  keys: z.nullable(z.optional(z.string())),
+
   // Override the returning format. Options: `yml`, `json`, `env-json`, or `env`
   outputFormat: z.nullable(z.optional(z.string())),
+
+  prefix: z.nullable(z.optional(z.string())),
 
   verbose: z.nullable(z.optional(z.boolean())),
 });
@@ -58,7 +64,9 @@ export async function getCommandHelper(args: {
   path?: string | null;
   target?: string | null;
   property?: string | null;
+  keys?: string | string[] | null;
   outputFormat?: string | null;
+  prefix?: string | null;
   verbose?: boolean | null;
 }) {
   let config = await resolveConfig({
@@ -74,7 +82,13 @@ export async function getCommandHelper(args: {
     config = config["default"];
   }
 
-  if (args.property) {
+  if (args.keys && args.property) {
+    throw new Error("Cannot use both --keys and --property at the same time");
+  }
+
+  if (args.keys) {
+    config = filterObjectByKeys(config, args.keys);
+  } else if (args.property) {
     const property = args.property.split(/\.|__/);
     let result = config;
     for (const key of property) {
@@ -91,10 +105,14 @@ export async function getCommandHelper(args: {
     case "yml":
       return { output: dumpYaml(config) };
     case "env-json":
-      return { output: generateDotEnv(config, { format: "json" }) };
+      return {
+        output: generateDotEnv(config, { format: "json", prefix: args.prefix }),
+      };
     case "env":
     case "__":
-      return { output: generateDotEnv(config, { format: "__" }) };
+      return {
+        output: generateDotEnv(config, { format: "__", prefix: args.prefix }),
+      };
     case "json":
     default: {
       return { output: config };

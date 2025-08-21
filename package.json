@@ -1,6 +1,6 @@
 {
   "name": "@povio/resolve-config",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "bin": "dist/sh.js",
   "scripts": {
     "start": "tsx ./src/sh.ts",

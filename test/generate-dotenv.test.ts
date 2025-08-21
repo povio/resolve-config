@@ -1,6 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert";
-import { generateDotEnvArray } from "../src/lib/plugin-dotenv";
+import {
+  generateDotEnvArray,
+  generateDotEnvPairs,
+} from "../src/lib/plugin-dotenv";
 import { parseEnv } from "../src";
 
 const tree = {
@@ -62,4 +65,34 @@ test("json and back", () => {
     booleanfalse: "false",
     booleantrue: "true",
   });
+});
+
+test("generateDotEnvArray unquoted", () => {
+  const env = generateDotEnvArray(tree, {
+    format: "__",
+    escaped: false,
+  });
+
+  assert.deepStrictEqual(env, [
+    "mysection__myparameter=myvalue",
+    `customsection__myparameter=dev with ' " quotes`,
+    "simplevalue=2",
+    "booleanfalse=false",
+    "booleantrue=true",
+  ]);
+});
+
+test("generateDotEnvPairs unquoted", () => {
+  const env = generateDotEnvPairs(tree, {
+    format: "__",
+    escaped: false,
+  });
+
+  assert.deepStrictEqual(env, [
+    ["mysection__myparameter", "myvalue"],
+    ["customsection__myparameter", `dev with ' " quotes`],
+    ["simplevalue", 2],
+    ["booleanfalse", false],
+    ["booleantrue", true],
+  ]);
 });

@@ -9,6 +9,7 @@ export function generateDotEnvPairs(
   options?: {
     format?: "json" | "__";
     prefix?: string;
+    escaped?: boolean; // default true
   },
 ): string[][] {
   return Object.entries(data)
@@ -24,21 +25,29 @@ export function generateDotEnvPairs(
             return generateDotEnvPairs(value, {
               format: "__",
               prefix: `${key}__`,
+              escaped: options?.escaped ?? true,
             });
           case "json":
           default:
             return [
-              [key, `'${JSON.stringify(value).replace(/\r?\n/g, "\\n")}'`],
+              [
+                key,
+                options?.escaped === false
+                  ? JSON.stringify(value)
+                  : `'${JSON.stringify(value).replace(/\r?\n/g, "\\n")}'`,
+              ],
             ];
         }
       }
       return [
         [
           key,
-          `"${value
-            .toString()
-            //  and newlines
-            .replace(/\r?\n/g, "\\n")}"`,
+          options?.escaped === false
+            ? value
+            : `"${value
+                .toString()
+                //  and newlines
+                .replace(/\r?\n/g, "\\n")}"`,
         ],
       ];
     })
@@ -56,6 +65,7 @@ export function generateDotEnvArray(
   options?: {
     format?: "json" | "__";
     prefix?: string;
+    escaped?: boolean; // default true
   },
 ): string[] {
   return generateDotEnvPairs(data, options).map(([k, v]) => `${k}=${v}`);
@@ -69,6 +79,7 @@ export function generateDotEnv(
   options?: {
     format?: "json" | "__";
     prefix?: string;
+    escaped?: boolean; // default true
   },
 ): string {
   return generateDotEnvArray(data, options).join("\n");

@@ -52,7 +52,7 @@ export function applyEnv(
   data: Record<string, any>,
   format: "json" | "__",
 ): void {
-  for (const [k, v] of generateDotEnvPairs(data, { format })) {
+  for (const [k, v] of generateDotEnvPairs(data, { format, escaped: false })) {
     process.env[k] = v;
   }
 }

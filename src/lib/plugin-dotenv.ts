@@ -7,7 +7,7 @@
 export function generateDotEnvPairs(
   data: Record<string, any>,
   options?: {
-    format?: "json" | "__";
+    format?: "json" | "__" | ".";
     prefix?: string;
     escaped?: boolean; // default true
   },
@@ -22,10 +22,11 @@ export function generateDotEnvPairs(
       if (typeof value === "object") {
         switch (options?.format) {
           case "__":
+          case ".":
             return generateDotEnvPairs(value, {
-              format: "__",
-              prefix: `${key}__`,
-              escaped: options?.escaped ?? true,
+              format: options.format,
+              prefix: `${key}${options.format}`,
+              escaped: options.escaped ?? true,
             });
           case "json":
           default:
@@ -63,7 +64,7 @@ export function generateDotEnvPairs(
 export function generateDotEnvArray(
   data: Record<string, any>,
   options?: {
-    format?: "json" | "__";
+    format?: "json" | "__" | ".";
     prefix?: string;
     escaped?: boolean; // default true
   },
@@ -77,7 +78,7 @@ export function generateDotEnvArray(
 export function generateDotEnv(
   data: Record<string, any>,
   options?: {
-    format?: "json" | "__";
+    format?: "json" | "__" | ".";
     prefix?: string;
     escaped?: boolean; // default true
   },

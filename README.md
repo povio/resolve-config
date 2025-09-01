@@ -54,6 +54,13 @@ yarn resolve-config get --stage myapp-dev --module config --target resolved --pr
 eval `yarn start get dev.config.resolved --outputFormat env --keys mysection.myparameter  --cwd ./test --prefix 'export '`
 ```
 
+Set value in a config file
+
+```bash
+yarn start set --path .config/myapp-dev.config.override.yml --property database.password --value 'mypass'
+yarn start set --stage myapp-dev --module config.override --property database.password --value 'mypass'
+```
+
 ### SDK
 
 ```typescript

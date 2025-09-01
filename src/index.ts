@@ -6,6 +6,10 @@ export { resolveConfigSync } from "./lib/resolve-config-sync";
 
 export { renderTemplate } from "./lib/render";
 
+export { mergeIntoTree } from "./lib/merge";
+
+export { filterObjectByKeys } from "./lib/filter-keys";
+
 export {
   generateDotEnvArray,
   generateDotEnv,
@@ -13,3 +17,12 @@ export {
 } from "./lib/plugin-dotenv";
 
 export { parseEnv, applyEnv } from "./lib/plugin-env";
+export { parseYaml, updateYaml, dumpYaml } from "./lib/plugin-yaml";
+
+export { setTemplate } from "./lib/set-template";
+
+export {
+  mutateLiteral,
+  resolveTemplateLiteral,
+  resolveTemplateContent,
+} from "./lib/template";

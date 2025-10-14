@@ -1,4 +1,5 @@
 import { generateDotEnvPairs } from "./plugin-dotenv";
+import { PlainNestedType } from "./types";
 
 /**
  * Parse .env file content into a data structure
@@ -48,10 +49,7 @@ export function parseEnv(content: string): Record<string, string> {
 /**
  * Apply config object to process.env
  */
-export function applyEnv(
-  data: Record<string, any>,
-  format: "json" | "__",
-): void {
+export function applyEnv(data: PlainNestedType, format: "json" | "__"): void {
   for (const [k, v] of generateDotEnvPairs(data, { format, escaped: false })) {
     process.env[k] = v;
   }

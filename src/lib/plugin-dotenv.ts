@@ -1,3 +1,5 @@
+import { PlainNestedType, PlainType } from "./types";
+
 /**
  * Convert a dictionary to an array env value pairs
  *  - in the format [[${key},"${value}"]]
@@ -5,13 +7,16 @@
  *  - escape values so that we preserve the format of the ini file
  */
 export function generateDotEnvPairs(
-  data: Record<string, any>,
+  data: PlainType,
   options?: {
     format?: "json" | "__" | ".";
-    prefix?: string;
+    prefix?: string | null;
     escaped?: boolean; // default true
   },
 ): string[][] {
+  if (typeof data !== "object" || data === null) {
+    return [];
+  }
   return Object.entries(data)
     .flatMap(([_key, value]) => {
       if (value === undefined || value === null) {
@@ -23,6 +28,16 @@ export function generateDotEnvPairs(
         switch (options?.format) {
           case "__":
           case ".":
+            if (Array.isArray(data)) {
+              return [
+                [
+                  key,
+                  options?.escaped === false
+                    ? JSON.stringify(data)
+                    : `'${JSON.stringify(data).replace(/\r?\n/g, "\\n")}'`,
+                ],
+              ];
+            }
             return generateDotEnvPairs(value, {
               format: options.format,
               prefix: `${key}${options.format}`,
@@ -44,7 +59,7 @@ export function generateDotEnvPairs(
         [
           key,
           options?.escaped === false
-            ? value
+            ? value.toString()
             : `"${value
                 .toString()
                 //  and newlines
@@ -62,10 +77,10 @@ export function generateDotEnvPairs(
  *  - escape values so that we preserve the format of the ini file
  */
 export function generateDotEnvArray(
-  data: Record<string, any>,
+  data: PlainNestedType,
   options?: {
     format?: "json" | "__" | ".";
-    prefix?: string;
+    prefix?: string | null;
     escaped?: boolean; // default true
   },
 ): string[] {
@@ -76,10 +91,10 @@ export function generateDotEnvArray(
  * Generate dotenv file
  */
 export function generateDotEnv(
-  data: Record<string, any>,
+  data: PlainNestedType,
   options?: {
     format?: "json" | "__" | ".";
-    prefix?: string;
+    prefix?: string | null;
     escaped?: boolean; // default true
   },
 ): string {

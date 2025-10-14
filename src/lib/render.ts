@@ -1,14 +1,16 @@
 import { generateDotEnv } from "./plugin-dotenv";
 import { dumpYaml } from "./plugin-yaml";
+import { PlainNestedType } from "./types";
 
 /**
  * Render a configuration file
  *
+ * @param tree - The configuration tree to render
  * @param options
  * @param options.output - The output format (json, yml, env)
  */
 export function renderTemplate(
-  tree: any,
+  tree: PlainNestedType | string,
   options: {
     outputFormat?: string | null;
   },

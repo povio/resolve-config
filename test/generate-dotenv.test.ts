@@ -91,8 +91,8 @@ test("generateDotEnvPairs unquoted", () => {
   assert.deepStrictEqual(env, [
     ["mysection__myparameter", "myvalue"],
     ["customsection__myparameter", `dev with ' " quotes`],
-    ["simplevalue", 2],
-    ["booleanfalse", false],
-    ["booleantrue", true],
+    ["simplevalue", "2"],
+    ["booleanfalse", "false"],
+    ["booleantrue", "true"],
   ]);
 });

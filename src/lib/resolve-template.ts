@@ -4,6 +4,7 @@ import {
   resolveTemplateLiteral,
   templateRegex,
 } from "./template";
+import { PlainType } from "./types";
 
 /**
  * Resolve a configuration file .config/${stage}.${module}.template.[yml|json]
@@ -56,7 +57,7 @@ export async function resolveTemplateObject(
   property?: string | null,
   path: string = "",
   cache: Map<string, any> = new Map(),
-): Promise<any> {
+): Promise<PlainType> {
   if (property) {
     // filter down to a single property
 

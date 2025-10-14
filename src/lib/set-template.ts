@@ -1,4 +1,4 @@
-import { isAbsolute, relative, sep, resolve } from "node:path";
+import { sep, resolve } from "node:path";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import * as process from "process";
 import { dumpYaml, updateYaml } from "./plugin-yaml";

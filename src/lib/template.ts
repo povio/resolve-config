@@ -3,6 +3,7 @@ import { basename, resolve } from "node:path";
 import { parseYaml } from "./plugin-yaml";
 import { parseEnv } from "./plugin-env";
 import { resolveAwsArn } from "./plugin-aws";
+import { PlainType, PlainNestedType } from "./types";
 
 export const templateRegex = /\$(?<mutator>[a-z]+)?\{(?<value>[^}]+)\}/g;
 
@@ -108,7 +109,7 @@ export function resolveTemplateContent(options: {
   format?: string | null;
 }):
   | {
-      tree: any;
+      tree: PlainType;
       stage: string;
       path?: string;
     }
@@ -161,7 +162,7 @@ export function resolveTemplateContent(options: {
     content = readFileSync(path, "utf8");
   }
 
-  let tree: any = {};
+  let tree: PlainNestedType = {};
   if (typeof content === "string") {
     if (!options.format && path === undefined) {
       throw new Error("Format is required when path is not provided");

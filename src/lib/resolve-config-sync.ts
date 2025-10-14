@@ -4,6 +4,7 @@ import { resolveResolveConfigs } from "./config";
 import { applyConfigFile } from "./apply";
 import { resolveTemplateSync } from "./resolve-template-sync";
 import { mergeIntoTree } from "./merge";
+import { PlainNestedType } from "./types";
 
 /**
  * Resolve a configuration file using a resolve-config configuration file
@@ -16,7 +17,7 @@ export function resolveConfigSync(options: {
   target?: string | null;
   context?: Record<string, any> | null;
   apply?: boolean | null;
-}) {
+}): PlainNestedType {
   const { items, stage, cwd } = resolveResolveConfigs(options);
 
   const configs: Record<string, any> = {};

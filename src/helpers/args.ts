@@ -12,7 +12,13 @@ export function getArgs<T extends ZodMiniType<any, any, any>>(
     shorthand?: RegExp;
   },
 ): output<T> {
-  const { values, positionals } = parseArgs({
+  const {
+    values,
+    positionals,
+  }: {
+    values: { [x: string]: string | boolean | undefined };
+    positionals: string[];
+  } = parseArgs({
     allowPositionals: true,
     args: argv,
     // convert zod types to parseArgs option
@@ -45,7 +51,7 @@ export function getArgs<T extends ZodMiniType<any, any, any>>(
   if (options.envs) {
     for (const [key, name] of Object.entries(options.envs)) {
       if (name && name in env) {
-        (values as any)[key] = env[name];
+        values[key] = env[name];
       }
     }
   }
@@ -57,7 +63,7 @@ export function getArgs<T extends ZodMiniType<any, any, any>>(
     } else {
       for (const [key, value] of Object.entries(match.groups ?? {})) {
         if (value) {
-          (values as any)[key] = value;
+          values[key] = value;
         }
       }
     }

@@ -4,6 +4,7 @@ import { resolveTemplateLiteral } from "./template";
 import { resolveResolveConfigs } from "./config";
 import { applyConfigFile } from "./apply";
 import { mergeIntoTree } from "./merge";
+import { PlainNestedType } from "./types";
 
 /**
  * Resolve a configuration file using a resolve-config configuration file
@@ -16,7 +17,7 @@ export async function resolveConfig(options: {
   target?: string | null;
   context?: Record<string, any> | null;
   apply?: boolean | null;
-}) {
+}): Promise<PlainNestedType> {
   const { items, stage, cwd } = resolveResolveConfigs(options);
 
   const configs: Record<string, any> = {};

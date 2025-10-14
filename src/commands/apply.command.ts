@@ -1,5 +1,5 @@
 import * as z from "zod/mini";
-import { getArgs } from "src/helpers/args";
+import { getArgs } from "../helpers/args";
 import { resolveConfig } from "../lib/resolve-config";
 
 const schema = z.object({

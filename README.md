@@ -64,7 +64,7 @@ yarn start set --stage myapp-dev --module config.override --property database.pa
 ### SDK
 
 ```typescript
-import { loadConfig, resolveConfig } from "@povio/resolve-config";
+import { loadConfig, resolveConfig, getString, getNumber, getBoolean } from "@povio/resolve-config";
 
 // will only load sync values
 const config1 = resolveConfigSync({
@@ -79,6 +79,11 @@ const config2 = await resolveConfig({
   module: "backend",
   target: "bootstrap",
 });
+
+// get a value
+const mypass = getString("database.password");
+const mynum = getNumber("database.port");
+const mybool = getBoolean("database.enabled");
 ```
 
 ## Configuration

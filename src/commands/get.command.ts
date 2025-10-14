@@ -4,6 +4,7 @@ import { resolveConfig } from "../lib/resolve-config";
 import { generateDotEnv } from "../lib/plugin-dotenv";
 import { dumpYaml } from "../lib/plugin-yaml";
 import { filterObjectByKeys } from "../lib/filter-keys";
+import { PlainNestedType, PlainType } from "../lib/types";
 
 const schema = z.object({
   stage: z.nullable(z.optional(z.string())),
@@ -79,7 +80,7 @@ export async function getCommandHelper(args: {
   });
 
   if (!args.target) {
-    config = config["default"];
+    config = config["default"] as PlainNestedType;
   }
 
   if (args.keys && args.property) {
@@ -90,12 +91,17 @@ export async function getCommandHelper(args: {
     config = filterObjectByKeys(config, args.keys);
   } else if (args.property) {
     const property = args.property.split(/\.|__/);
-    let result = config;
+    let result: PlainType = config;
     for (const key of property) {
-      if (result[key] === undefined) {
+      if (
+        !result ||
+        typeof result !== "object" ||
+        Array.isArray(result) || // todo - handle arrays
+        !(key in result)
+      ) {
         return { output: undefined };
       }
-      result = result[key];
+      result = result[key as keyof typeof result];
     }
     return { output: result };
   }

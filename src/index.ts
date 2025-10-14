@@ -21,6 +21,8 @@ export { parseYaml, updateYaml, dumpYaml } from "./lib/plugin-yaml";
 
 export { setTemplate } from "./lib/set-template";
 
+export { getNumber, getString, getBoolean, getPlain } from "./lib/get";
+
 export {
   mutateLiteral,
   resolveTemplateLiteral,

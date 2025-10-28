@@ -1,1 +1,2 @@
 another_flag: $object{arn:aws:ssm:::parameter/myapp/feature/flags}
+secret_value: ${arn:aws:secretsmanager:us-east-1:000000000000:secret:myapp-secret-value}

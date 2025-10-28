@@ -32,11 +32,15 @@
   "author": "Marko Zabreznik <marko.zabreznik@povio.com>",
   "license": "BSD-3-Clause",
   "peerDependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.840.0",
     "@aws-sdk/client-ssm": "^3.840.0",
     "@aws-sdk/client-sts": "^3.840.0",
     "@aws-sdk/credential-providers": "^3.840.0"
   },
   "peerDependenciesMeta": {
+    "@aws-sdk/client-secrets-manager": {
+      "optional": true
+    },
     "@aws-sdk/client-ssm": {
       "optional": true
     },
@@ -48,6 +52,7 @@
     }
   },
   "devDependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.908.0",
     "@aws-sdk/client-ssm": "^3.908.0",
     "@aws-sdk/client-sts": "^3.908.0",
     "@aws-sdk/credential-providers": "^3.908.0",

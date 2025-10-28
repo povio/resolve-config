@@ -10,4 +10,5 @@ services:
       - SERVICES=ssm,secretsmanager,sts,iam
     volumes:
       - "./scripts/localstack/setup-ssm-parameters.sh:/etc/localstack/init/ready.d/setup-ssm-parameters.sh" # ready hook
+      - "./scripts/localstack/setup-secretmanager-parameters.sh:/etc/localstack/init/ready.d/setup-secretmanager-parameters.sh" # ready hook
       - "/var/run/docker.sock:/var/run/docker.sock"

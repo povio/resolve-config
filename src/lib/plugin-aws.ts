@@ -1,6 +1,9 @@
 const SSMRegEx =
   /arn:aws:ssm:(?<region>[^:]+)?:(?<accountId>\d+)?:parameter\/(?<path>.*)/;
 
+const SecretsManagerRegEx =
+  /arn:aws:secretsmanager:(?<region>[^:]+)?:(?<accountId>\d+)?:secret:(?<path>.*)/;
+
 export async function getCredentials(config: {
   credentials?: {
     accessKeyId: string;
@@ -43,7 +46,39 @@ export async function getSSMInstance(config: {
   });
 }
 
-export async function resolveAwsArn(
+export async function getSecretsManagerInstance(config: {
+  region?: string;
+  credentials?: {
+    accessKeyId: string;
+    secretAccessKey: string;
+    sessionToken?: string;
+  };
+  endpoint?: string;
+}) {
+  const { SecretsManagerClient } = await import(
+    "@aws-sdk/client-secrets-manager"
+  );
+  return new SecretsManagerClient({
+    credentials: config.credentials
+      ? config.credentials
+      : await getCredentials({
+          credentials: config.credentials,
+          region: config.region,
+        }),
+    region: config.region,
+    endpoint: config.endpoint,
+  });
+}
+
+function isSsmArn(name: string) {
+  return SSMRegEx.test(name);
+}
+
+function isSecretsManagerArn(name: string) {
+  return SecretsManagerRegEx.test(name);
+}
+
+async function resolveSsmArn(
   name: string,
   config?: {
     credentials?: {
@@ -59,9 +94,6 @@ export async function resolveAwsArn(
   const { GetParameterCommand } = await import("@aws-sdk/client-ssm");
 
   const match = name.match(SSMRegEx);
-  if (!match?.groups?.path) {
-    throw new Error(`Could not parse parameter arn: '${name}'`);
-  }
 
   const region =
     match?.groups?.region || config?.region || process.env.AWS_REGION;
@@ -76,7 +108,7 @@ export async function resolveAwsArn(
   try {
     response = await ssm.send(
       new GetParameterCommand({
-        Name: `/${match.groups.path}`,
+        Name: `/${match!.groups!.path}`,
         WithDecryption: true,
       }),
     );
@@ -87,4 +119,71 @@ export async function resolveAwsArn(
     throw new Error("Could not get parameter");
   }
   return response.Parameter.Value;
+}
+
+async function resolveSecretsManagerArn(
+  name: string,
+  config?: {
+    credentials?: {
+      accessKeyId: string;
+      secretAccessKey: string;
+      sessionToken?: string;
+    };
+    accountId?: string;
+    region?: string;
+    endpoint?: string;
+  },
+) {
+  const { GetSecretValueCommand } = await import(
+    "@aws-sdk/client-secrets-manager"
+  );
+
+  const match = name.match(SecretsManagerRegEx);
+  const region =
+    match?.groups?.region || config?.region || process.env.AWS_REGION;
+
+  const secretsManager = await getSecretsManagerInstance({
+    credentials: config?.credentials,
+    region,
+    endpoint: config?.endpoint,
+  });
+
+  let response;
+  try {
+    response = await secretsManager.send(
+      new GetSecretValueCommand({
+        SecretId: name,
+      }),
+    );
+  } catch (e) {
+    throw new Error(`Could not get secret ${name}`, { cause: e });
+  }
+  if (!response.SecretString) {
+    throw new Error("Could not get secret");
+  }
+  return response.SecretString;
+}
+
+export async function resolveAwsArn(
+  name: string,
+  config?: {
+    credentials?: {
+      accessKeyId: string;
+      secretAccessKey: string;
+      sessionToken?: string;
+    };
+    accountId?: string;
+    region?: string;
+    endpoint?: string;
+  },
+) {
+  if (isSsmArn(name)) {
+    return await resolveSsmArn(name, config);
+  }
+
+  if (isSecretsManagerArn(name)) {
+    return await resolveSecretsManagerArn(name, config);
+  }
+
+  throw new Error(`Could not resolve arn: '${name}'`);
 }

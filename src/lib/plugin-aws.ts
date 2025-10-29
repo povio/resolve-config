@@ -172,7 +172,7 @@ export async function resolveAwsArn(
 ) {
   const ssmMatch = name.match(SSMRegEx);
   if (ssmMatch) {
-    return await resolveSsmArn(name, {
+    return await resolveSsmArn(ssmMatch!.groups!.path, {
       ...config,
       region:
         ssmMatch?.groups?.region || config?.region || process.env.AWS_REGION,

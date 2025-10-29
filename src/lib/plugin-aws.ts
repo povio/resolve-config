@@ -92,18 +92,20 @@ async function resolveSsmArn(
   });
 
   let response;
+  const Name =
+    config?.accountId && config.region
+      ? `arn:aws:ssm:${config.region}:${config.accountId}:parameter/${path}`
+      : `/${path}`;
+
   try {
     response = await ssm.send(
       new GetParameterCommand({
-        Name:
-          config?.accountId && config.region
-            ? `arn:aws:ssm:${config.region}:${config.accountId}:parameter/${path}`
-            : `/${path}`,
+        Name,
         WithDecryption: true,
       }),
     );
   } catch (e) {
-    throw new Error(`Could not get parameter ${name}`, { cause: e });
+    throw new Error(`Could not get parameter ${Name}`, { cause: e });
   }
   if (!response.Parameter?.Value) {
     throw new Error("Could not get parameter");

@@ -58,7 +58,7 @@
     "@aws-sdk/credential-providers": "^3.919.0",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.38.0",
-    "@swc/core": "^1.13.21",
+    "@swc/core": "1.13.5",
     "@types/node": "^24.9.2",
     "@types/prettier": "^3.0.0",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
@@ -80,5 +80,5 @@
     "yarn": ">= 4",
     "npm": ">= 8"
   },
-  "packageManager": "yarn@4.9.2"
+  "packageManager": "yarn@4.10.3"
 }

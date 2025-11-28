@@ -63,11 +63,16 @@ test("sync template with wrong function variables", () => {
 
 test("sync template with simple object", () => {
   process.env.TEST = "test";
-  const resolved = resolveTemplateObjectSync({
-    a: "b",
-    c: "${func:stage}",
-    d: "${env:TEST}",
-  });
+  const resolved = resolveTemplateObjectSync(
+    {
+      a: "b",
+      c: "${func:stage}",
+      d: "${env:TEST}",
+    },
+    {
+      stage: "local",
+    },
+  );
 
   assert.deepStrictEqual(resolved, {
     a: "b",

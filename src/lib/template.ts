@@ -72,7 +72,7 @@ export function resolveTemplateLiteral(
       }
       switch (args.join(":").trim()) {
         case "stage":
-          result = context?.stage ?? "local";
+          result = context?.stage;
           break;
         case "timestamp":
           return new Date().toISOString();

@@ -20,6 +20,8 @@ export async function resolveConfig(options: {
 }): Promise<PlainNestedType> {
   const { items, stage, cwd } = resolveResolveConfigs(options);
 
+  const globalContext = deepmerge({ stage }, options?.context ?? {});
+
   const configs: Record<string, any> = {};
 
   for (const {
@@ -43,16 +45,16 @@ export async function resolveConfig(options: {
       } else if (value.valueFrom) {
         resolvedValue = await resolveTemplateLiteral(
           value.valueFrom,
-          deepmerge(options?.context ?? {}, context ?? {}),
-          undefined,
+          deepmerge(globalContext ?? {}, context ?? {}),
+          value.name,
           cache,
           true,
         );
       } else if (value.objectFrom) {
         resolvedValue = await resolveTemplateLiteral(
           value.objectFrom,
-          deepmerge(options?.context ?? {}, context ?? {}),
-          undefined,
+          deepmerge(globalContext ?? {}, context ?? {}),
+          value.name,
           cache,
           true,
         );
@@ -65,7 +67,7 @@ export async function resolveConfig(options: {
           resolve: value.resolve,
           path: value.templatePath,
           ignoreEmpty: value.ignoreEmpty,
-          context: deepmerge(options?.context ?? {}, context ?? {}),
+          context: deepmerge(globalContext ?? {}, context ?? {}),
         });
       }
 

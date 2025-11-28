@@ -20,6 +20,8 @@ export function resolveConfigSync(options: {
 }): PlainNestedType {
   const { items, stage, cwd } = resolveResolveConfigs(options);
 
+  const globalContext = deepmerge({ stage }, options?.context ?? {});
+
   const configs: Record<string, any> = {};
 
   for (const {
@@ -43,7 +45,7 @@ export function resolveConfigSync(options: {
       } else if (value.valueFrom) {
         resolvedValue = resolveTemplateLiteral(
           value.valueFrom,
-          deepmerge(options?.context ?? {}, context ?? {}),
+          deepmerge(globalContext ?? {}, context ?? {}),
           value.name,
           cache,
           false,
@@ -51,7 +53,7 @@ export function resolveConfigSync(options: {
       } else if (value.objectFrom) {
         resolvedValue = resolveTemplateLiteral(
           value.objectFrom,
-          deepmerge(options?.context ?? {}, context ?? {}),
+          deepmerge(globalContext ?? {}, context ?? {}),
           value.name,
           cache,
           false,
@@ -65,7 +67,7 @@ export function resolveConfigSync(options: {
           resolve: value.resolve,
           path: value.templatePath,
           ignoreEmpty: value.ignoreEmpty,
-          context: deepmerge(options?.context ?? {}, context ?? {}),
+          context: deepmerge(globalContext ?? {}, context ?? {}),
         });
       }
 

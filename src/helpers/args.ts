@@ -1,17 +1,17 @@
-import { ZodMiniType, output } from "zod/mini";
+import * as z from "zod/mini";
 import { parseArgs } from "node:util";
 
 /**
  * Parse command line arguments into a validated object
  */
-export function getArgs<T extends ZodMiniType<any, any, any>>(
+export function getArgs<T extends z.ZodMiniType<any, any, any>>(
   argv: string[],
   options: {
     config: T;
-    envs: Partial<Record<keyof output<T>, string>>;
+    envs: Partial<Record<keyof z.output<T>, string>>;
     shorthand?: RegExp;
   },
-): output<T> {
+): z.output<T> {
   const {
     values,
     positionals,

@@ -65,11 +65,14 @@ test("template with wrong function variables", async () => {
 
 test("template with simple object", async () => {
   process.env.TEST = "test";
-  const resolved = await resolveTemplateObject({
-    a: "b",
-    c: "${func:stage}",
-    d: "${env:TEST}",
-  });
+  const resolved = await resolveTemplateObject(
+    {
+      a: "b",
+      c: "${func:stage}",
+      d: "${env:TEST}",
+    },
+    { stage: "local" },
+  );
 
   assert.deepStrictEqual(resolved, {
     a: "b",
@@ -80,11 +83,14 @@ test("template with simple object", async () => {
 
 test("template null missing value", async () => {
   process.env.TEST = "test";
-  const resolved = await resolveTemplateObject({
-    a: "b",
-    c: "${func:stage}",
-    d: "${env:NO_VALUE}",
-  });
+  const resolved = await resolveTemplateObject(
+    {
+      a: "b",
+      c: "${func:stage}",
+      d: "${env:NO_VALUE}",
+    },
+    { stage: "local" },
+  );
 
   assert.deepStrictEqual(resolved, {
     a: "b",
@@ -101,6 +107,7 @@ test("template keep only resolved", async () => {
       d: "${env:TEST}",
     },
     {
+      stage: "local",
       resolve: "only",
     },
   );
@@ -155,6 +162,7 @@ test("template with array - only resolved", async () => {
       d: "${env:TEST}",
     },
     {
+      stage: "local",
       resolve: "only",
     },
   );

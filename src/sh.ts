@@ -8,7 +8,7 @@ import { setCommand } from "./commands/set.command";
 const [command, ...args] = process.argv.slice(2);
 
 if (!command) {
-  console.error(`
+  console.log(`
 NAME:
   resolve-config - Resolve configuration files
 

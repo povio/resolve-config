@@ -29,7 +29,7 @@ COMMANDS
   set - Set a value in a yaml file
   
 COPYRIGHT:
-  (c) 2025 Povio inc., All rights reserved.
+  (c) 2026 Povio inc., All rights reserved.
 `);
   process.exit(1);
 }

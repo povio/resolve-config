@@ -18,7 +18,7 @@ configs:
     values:
       - name: "@"
         templateModule: api.template
-        skipResolved: true
+        resolve: remove
 
       - name: "@"
         templateModule: api.resolved

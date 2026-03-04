@@ -123,7 +123,7 @@ configs:
       # use the template without resolved items
       - name: "@"
         templateModule: api.template
-        resolve: "none"
+        resolve: "remove"
 
       # override with resolved items
       - name: "@"

@@ -6,8 +6,8 @@
     "outDir": "dist",
     "strict": true,
     "lib": ["es2022", "dom"],
-    "baseUrl": ".",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
+    "ignoreDeprecations": "6.0",
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
     "allowJs": true,
@@ -15,7 +15,8 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "skipLibCheck": true,
-    "noImplicitAny": true
+    "noImplicitAny": true,
+    "types": ["node"]
   },
   "include": ["src/**/*.ts", "test/**/*.test.ts"]
 }

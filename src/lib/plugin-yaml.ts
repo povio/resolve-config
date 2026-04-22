@@ -1,4 +1,4 @@
-import { parse, parseDocument, stringify, Document } from "yaml";
+import { parse, parseDocument, stringify } from "yaml";
 import { generateDotEnvPairs } from "./plugin-dotenv";
 import { PlainType } from "./types";
 

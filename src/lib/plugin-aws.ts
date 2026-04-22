@@ -1,8 +1,8 @@
-const SSMRegEx =
-  /arn:aws:ssm:(?<region>[^:]+)?:(?<accountId>\d+)?:parameter\/(?<path>.*)/;
+import type { AwsCredentialIdentityProvider } from "@aws-sdk/credential-providers";
 
-const SecretsManagerRegEx =
-  /arn:aws:secretsmanager:(?<region>[^:]+)?:(?<accountId>\d+)?:secret:(?<path>.*)/;
+const SSMRegEx = /arn:aws:ssm:(?<region>[^:]+)?:(?<accountId>\d+)?:parameter\/(?<path>.*)/;
+
+const SecretsManagerRegEx = /arn:aws:secretsmanager:(?<region>[^:]+)?:(?<accountId>\d+)?:secret:(?<path>.*)/;
 
 export async function getCredentials(config: {
   credentials?: {
@@ -11,10 +11,8 @@ export async function getCredentials(config: {
     sessionToken?: string;
   };
   region?: string;
-}) {
-  const { fromNodeProviderChain } = await import(
-    "@aws-sdk/credential-providers"
-  );
+}): Promise<AwsCredentialIdentityProvider> {
+  const { fromNodeProviderChain } = await import("@aws-sdk/credential-providers");
 
   return await fromNodeProviderChain({
     //...any input of fromEnv(), fromSSO(), fromTokenFile(), fromIni(),
@@ -55,9 +53,7 @@ export async function getSecretsManagerInstance(config: {
   };
   endpoint?: string;
 }) {
-  const { SecretsManagerClient } = await import(
-    "@aws-sdk/client-secrets-manager"
-  );
+  const { SecretsManagerClient } = await import("@aws-sdk/client-secrets-manager");
   return new SecretsManagerClient({
     credentials: config.credentials
       ? config.credentials
@@ -126,9 +122,7 @@ async function resolveSecretsManagerArn(
     endpoint?: string;
   },
 ) {
-  const { GetSecretValueCommand } = await import(
-    "@aws-sdk/client-secrets-manager"
-  );
+  const { GetSecretValueCommand } = await import("@aws-sdk/client-secrets-manager");
 
   const secretsManager = await getSecretsManagerInstance({
     credentials: config?.credentials,
@@ -174,8 +168,7 @@ export async function resolveAwsArn(
   if (ssmMatch) {
     return await resolveSsmArn(ssmMatch!.groups!.path, {
       ...config,
-      region:
-        ssmMatch?.groups?.region || config?.region || process.env.AWS_REGION,
+      region: ssmMatch?.groups?.region || config?.region || process.env.AWS_REGION,
       accountId: ssmMatch.groups?.accountId,
     });
   }
@@ -184,8 +177,7 @@ export async function resolveAwsArn(
   if (secretMatch) {
     return await resolveSecretsManagerArn(secretMatch!.groups!.path, {
       ...config,
-      region:
-        secretMatch?.groups?.region || config?.region || process.env.AWS_REGION,
+      region: secretMatch?.groups?.region || config?.region || process.env.AWS_REGION,
       accountId: secretMatch.groups?.accountId,
     });
   }

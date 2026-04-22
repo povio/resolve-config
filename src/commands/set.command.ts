@@ -1,5 +1,5 @@
 import * as z from "zod/mini";
-import { getArgs } from "src/helpers/args";
+import { getArgs } from "../helpers/args";
 import { setTemplate } from "../lib/set-template";
 import { mergeIntoTree } from "../lib/merge";
 
@@ -68,9 +68,7 @@ export async function setCommandHelper(args: {
     module: args.module,
     path: args.path,
     format: args.format,
-    data: args.json
-      ? JSON.parse(args.json)
-      : mergeIntoTree({}, args.property!, args.value),
+    data: args.json ? JSON.parse(args.json) : mergeIntoTree({}, args.property!, args.value),
     replace: args.replace,
   });
 }

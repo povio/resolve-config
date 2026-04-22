@@ -45,10 +45,7 @@ export function setTemplate(options: {
 
   if (existsSync(resolvedPath) && options.replace !== true) {
     // write into the yml, keeping the existing values and comments
-    writeFileSync(
-      resolvedPath,
-      updateYaml(readFileSync(resolvedPath, "utf8"), options.data),
-    );
+    writeFileSync(resolvedPath, updateYaml(readFileSync(resolvedPath, "utf8"), options.data));
   } else {
     // create a new config
     if (options.verbose) console.log(`Writing ${resolvedPath}`);

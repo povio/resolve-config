@@ -1,7 +1,7 @@
 import * as z from "zod/mini";
-import { getArgs } from "src/helpers/args";
-import { resolveTemplate } from "src/lib/resolve-template";
-import { renderTemplate } from "src/lib/render";
+import { getArgs } from "../helpers/args";
+import { resolveTemplate } from "../lib/resolve-template";
+import { renderTemplate } from "../lib/render";
 
 const schema = z.object({
   stage: z.nullable(z.optional(z.string())),

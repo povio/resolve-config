@@ -19,13 +19,7 @@ export const templateRegex = /\$(?<mutator>[a-z]+)?\{(?<value>[^}]+)\}/g;
  * @return {string} The mutated literal as a string after applying the specified mutator logic.
  * @throws {Error} If the mutator type is unsupported.
  */
-export function mutateLiteral(
-  mutator: string,
-  input: string,
-  matched: string,
-  resolved: any,
-  path: string,
-) {
+export function mutateLiteral(mutator: string, input: string, matched: string, resolved: any, path: string) {
   switch (mutator) {
     case "object": {
       if (input === matched) {
@@ -119,10 +113,7 @@ export function resolveTemplateContent(options: {
   let content: string;
   let path: string | undefined;
   if (options.content) {
-    if (
-      typeof options.content !== "string" &&
-      typeof options.content !== "object"
-    ) {
+    if (typeof options.content !== "string" && typeof options.content !== "object") {
       throw new Error("Content must be a string or object");
     }
     content = options.content;

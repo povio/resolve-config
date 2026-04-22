@@ -1,5 +1,4 @@
-import { test } from "node:test";
-import assert from "node:assert";
+import { test, expect } from "vitest";
 import { getCommandHelper } from "../src/commands/get.command";
 
 const cwd = __dirname;
@@ -18,7 +17,7 @@ test("get config as json", async () => {
     ...configOptions,
     outputFormat: "json",
   });
-  assert.partialDeepStrictEqual(response.output, {
+  expect(response.output).toMatchObject({
     mysection: { myparameter: "myvalue" },
     customsection: { myparameter: "dev" },
   });
@@ -29,11 +28,7 @@ test("get config as env", async () => {
     ...configOptions,
     outputFormat: "env",
   });
-  assert.strictEqual(
-    response.output,
-    `mysection__myparameter="myvalue"
-customsection__myparameter="dev"`,
-  );
+  expect(response.output).toBe(`mysection__myparameter="myvalue"\ncustomsection__myparameter="dev"`);
 });
 
 test("get config with keys filter", async () => {
@@ -42,7 +37,7 @@ test("get config with keys filter", async () => {
     keys: "mysection.myparameter",
     outputFormat: "json",
   });
-  assert.partialDeepStrictEqual(response.output, {
+  expect(response.output).toMatchObject({
     mysection: { myparameter: "myvalue" },
   });
 });
@@ -53,7 +48,7 @@ test("get config with multiple keys filter", async () => {
     keys: "mysection.myparameter, customsection.myparameter",
     outputFormat: "json",
   });
-  assert.partialDeepStrictEqual(response.output, {
+  expect(response.output).toMatchObject({
     mysection: { myparameter: "myvalue" },
     customsection: { myparameter: "dev" },
   });
@@ -65,7 +60,7 @@ test("get config with keys filter as env", async () => {
     keys: "mysection__myparameter",
     outputFormat: "env",
   });
-  assert.strictEqual(response.output, `mysection__myparameter="myvalue"`);
+  expect(response.output).toBe(`mysection__myparameter="myvalue"`);
 });
 
 test("get subtree, scalar property, and key filter from manifest path", async () => {
@@ -80,7 +75,7 @@ test("get subtree, scalar property, and key filter from manifest path", async ()
     property: "api",
     outputFormat: "json",
   });
-  assert.deepStrictEqual(subtree.output, {
+  expect(subtree.output).toStrictEqual({
     version: 1,
     name: "demo-service",
   });
@@ -93,7 +88,7 @@ test("get subtree, scalar property, and key filter from manifest path", async ()
     property: "service.name",
     outputFormat: "json",
   });
-  assert.strictEqual(scalar.output, "get-test");
+  expect(scalar.output).toBe("get-test");
 
   const keys = await getCommandHelper({
     cwd,
@@ -103,7 +98,7 @@ test("get subtree, scalar property, and key filter from manifest path", async ()
     keys: "settings.k, service.name",
     outputFormat: "json",
   });
-  assert.deepStrictEqual(keys.output, {
+  expect(keys.output).toStrictEqual({
     settings: { k: "v" },
     service: { name: "get-test" },
   });
@@ -121,25 +116,20 @@ test("get env-json output for nested tree", async () => {
     outputFormat: "env-json",
   });
 
-  assert.match(
-    output as string,
-    /api='\{"version":1,"name":"demo-service"\}'/,
-  );
-  assert.match(output as string, /meta='\{"env":"staging"\}'/);
+  expect(output as string).toMatch(/api='\{"version":1,"name":"demo-service"\}'/);
+  expect(output as string).toMatch(/meta='\{"env":"staging"\}'/);
 });
 
 test("get rejects keys and property together", async () => {
-  await assert.rejects(
-    () =>
-      getCommandHelper({
-        cwd,
-        stage: "staging",
-        path: stagingManifestPath,
-        target: "frontend",
-        property: "api",
-        keys: "api.version",
-        outputFormat: "json",
-      }),
-    /Cannot use both --keys and --property/,
-  );
+  await expect(() =>
+    getCommandHelper({
+      cwd,
+      stage: "staging",
+      path: stagingManifestPath,
+      target: "frontend",
+      property: "api",
+      keys: "api.version",
+      outputFormat: "json",
+    }),
+  ).rejects.toThrow(/Cannot use both --keys and --property/);
 });

@@ -1,12 +1,6 @@
-import { test } from "node:test";
-import assert from "node:assert";
+import { test, expect } from "vitest";
 import { join } from "node:path";
-import {
-  existsSync,
-  readFileSync,
-  unlinkSync,
-  writeFileSync,
-} from "node:fs";
+import { existsSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { parse as parseYaml } from "yaml";
 import { setCommandHelper } from "../src/commands/set.command";
 
@@ -20,11 +14,9 @@ test("set simple property in new file", async () => {
   const testFile = join(".config", "tmp-test-set.yml");
   const testFilePath = join(__dirname, testFile);
 
-  // Ensure file doesn't exist
   cleanupFile(testFilePath);
 
   try {
-    // create
     await setCommandHelper({
       cwd: __dirname,
       path: testFile,
@@ -32,18 +24,9 @@ test("set simple property in new file", async () => {
       value: "localhost",
     });
 
-    assert.ok(
-      existsSync(testFilePath),
-      `File ${testFilePath} should be created`,
-    );
+    expect(existsSync(testFilePath), `File ${testFilePath} should be created`).toBe(true);
+    expect(readFileSync(testFilePath, "utf8")).toMatch(/database:\s*host:\s*localhost/);
 
-    assert.match(
-      readFileSync(testFilePath, "utf8"),
-      /database:\s*host:\s*localhost/,
-      "Should contain the set property",
-    );
-
-    // update
     await setCommandHelper({
       cwd: __dirname,
       path: testFile,
@@ -51,11 +34,7 @@ test("set simple property in new file", async () => {
       value: "remote",
     });
 
-    assert.match(
-      readFileSync(testFilePath, "utf8"),
-      /database:\s*host:\s*localhost\s*name:\s*remote/,
-      "Should contain the set property",
-    );
+    expect(readFileSync(testFilePath, "utf8")).toMatch(/database:\s*host:\s*localhost\s*name:\s*remote/);
   } finally {
     cleanupFile(testFilePath);
   }
@@ -65,11 +44,9 @@ test("set simple property for config set", async () => {
   const testFile = join(".config", "test.api.override.yml");
   const testFilePath = join(__dirname, testFile);
 
-  // Ensure file doesn't exist
   cleanupFile(testFilePath);
 
   try {
-    // create
     await setCommandHelper({
       cwd: __dirname,
       stage: "test",
@@ -78,18 +55,9 @@ test("set simple property for config set", async () => {
       value: "admin",
     });
 
-    assert.ok(
-      existsSync(testFilePath),
-      `File ${testFilePath} should be created`,
-    );
+    expect(existsSync(testFilePath), `File ${testFilePath} should be created`).toBe(true);
+    expect(readFileSync(testFilePath, "utf8")).toMatch(/database:\s*user:\s*admin/);
 
-    assert.match(
-      readFileSync(testFilePath, "utf8"),
-      /database:\s*user:\s*admin/,
-      "Should contain the set property",
-    );
-
-    // update
     await setCommandHelper({
       cwd: __dirname,
       stage: "test",
@@ -98,11 +66,7 @@ test("set simple property for config set", async () => {
       value: "hidden",
     });
 
-    assert.match(
-      readFileSync(testFilePath, "utf8"),
-      /database:\s*user:\s*admin\s*password:\s*hidden/,
-      "Should contain the set property",
-    );
+    expect(readFileSync(testFilePath, "utf8")).toMatch(/database:\s*user:\s*admin\s*password:\s*hidden/);
   } finally {
     cleanupFile(testFilePath);
   }
@@ -123,7 +87,7 @@ test("set deep-merges into existing yaml when replace is not set", async () => {
     const doc = parseYaml(readFileSync(testFilePath, "utf8")) as {
       root: { a: number; b: string };
     };
-    assert.deepStrictEqual(doc.root, { a: 1, b: "2" });
+    expect(doc.root).toStrictEqual({ a: 1, b: "2" });
   } finally {
     cleanupFile(testFilePath);
   }

@@ -1,9 +1,6 @@
 import { PlainType } from "./types";
 
-export function getPlain(
-  tree: PlainType,
-  path: string | string[],
-): PlainType | undefined {
+export function getPlain(tree: PlainType, path: string | string[]): PlainType | undefined {
   if (typeof path === "string") {
     path = path.split(".");
   }
@@ -20,18 +17,12 @@ export function getPlain(
   return node;
 }
 
-export function getString(
-  tree: PlainType,
-  path: string | string[],
-): string | undefined {
+export function getString(tree: PlainType, path: string | string[]): string | undefined {
   const value = getPlain(tree, path);
   return value ? value.toString() : undefined;
 }
 
-export function getNumber(
-  tree: PlainType,
-  path: string | string[],
-): number | undefined {
+export function getNumber(tree: PlainType, path: string | string[]): number | undefined {
   const value = getPlain(tree, path);
   if (typeof value === "number") {
     return value;
@@ -47,10 +38,7 @@ export function getNumber(
   }
 }
 
-export function getBoolean(
-  tree: PlainType,
-  path: string | string[],
-): boolean | undefined {
+export function getBoolean(tree: PlainType, path: string | string[]): boolean | undefined {
   const value = getPlain(tree, path);
   if (typeof value === "boolean") {
     return value;

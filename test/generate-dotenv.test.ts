@@ -1,9 +1,5 @@
-import { test } from "node:test";
-import assert from "node:assert";
-import {
-  generateDotEnvArray,
-  generateDotEnvPairs,
-} from "../src/lib/plugin-dotenv";
+import { test, expect } from "vitest";
+import { generateDotEnvArray, generateDotEnvPairs } from "../src/lib/plugin-dotenv";
 import { parseEnv } from "../src";
 
 const tree = {
@@ -18,7 +14,7 @@ test("underscores", () => {
   const env = generateDotEnvArray(tree, {
     format: "__",
   });
-  assert.deepStrictEqual(env, [
+  expect(env).toStrictEqual([
     'mysection__myparameter="myvalue"',
     `customsection__myparameter="dev with ' " quotes"`,
     'simplevalue="2"',
@@ -26,7 +22,7 @@ test("underscores", () => {
     'booleantrue="true"',
   ]);
   const config = parseEnv(env.join("\n"));
-  assert.deepStrictEqual(config, {
+  expect(config).toStrictEqual({
     booleanfalse: "false",
     booleantrue: "true",
     customsection__myparameter: `dev with ' " quotes`,
@@ -39,7 +35,7 @@ test("json", () => {
   const env = generateDotEnvArray(tree, {
     format: "json",
   });
-  assert.deepStrictEqual(env, [
+  expect(env).toStrictEqual([
     `mysection='{"myparameter":"myvalue"}'`,
     `customsection='{"myparameter":"dev with ' \\" quotes"}'`,
     'simplevalue="2"',
@@ -58,7 +54,7 @@ test("json and back", () => {
   config.customsection = JSON.parse(config.customsection);
   config.mysection = JSON.parse(config.mysection);
 
-  assert.deepStrictEqual(config, {
+  expect(config).toStrictEqual({
     mysection: { myparameter: "myvalue" },
     customsection: { myparameter: `dev with ' " quotes` },
     simplevalue: "2",
@@ -73,7 +69,7 @@ test("generateDotEnvArray unquoted", () => {
     escaped: false,
   });
 
-  assert.deepStrictEqual(env, [
+  expect(env).toStrictEqual([
     "mysection__myparameter=myvalue",
     `customsection__myparameter=dev with ' " quotes`,
     "simplevalue=2",
@@ -88,7 +84,7 @@ test("generateDotEnvPairs unquoted", () => {
     escaped: false,
   });
 
-  assert.deepStrictEqual(env, [
+  expect(env).toStrictEqual([
     ["mysection__myparameter", "myvalue"],
     ["customsection__myparameter", `dev with ' " quotes`],
     ["simplevalue", "2"],

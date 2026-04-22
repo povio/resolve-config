@@ -17,9 +17,7 @@ export function mergeIntoTree(tree: any, name: string, resolvedValue: any) {
         edge[segment] = {};
       }
       if (typeof edge[segment] !== "object") {
-        throw new Error(
-          `Cannot create tree path at ${name}, ${segment} is not an object ${edge[segment]}`,
-        );
+        throw new Error(`Cannot create tree path at ${name}, ${segment} is not an object ${edge[segment]}`);
       }
       edge = edge[segment];
     }

@@ -10,11 +10,7 @@ export { mergeIntoTree } from "./lib/merge";
 
 export { filterObjectByKeys } from "./lib/filter-keys";
 
-export {
-  generateDotEnvArray,
-  generateDotEnv,
-  generateDotEnvPairs,
-} from "./lib/plugin-dotenv";
+export { generateDotEnvArray, generateDotEnv, generateDotEnvPairs } from "./lib/plugin-dotenv";
 
 export { parseEnv, applyEnv } from "./lib/plugin-env";
 export { parseYaml, updateYaml, dumpYaml } from "./lib/plugin-yaml";
@@ -23,8 +19,4 @@ export { setTemplate } from "./lib/set-template";
 
 export { getNumber, getString, getBoolean, getPlain } from "./lib/get";
 
-export {
-  mutateLiteral,
-  resolveTemplateLiteral,
-  resolveTemplateContent,
-} from "./lib/template";
+export { mutateLiteral, resolveTemplateLiteral, resolveTemplateContent } from "./lib/template";

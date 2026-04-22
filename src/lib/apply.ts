@@ -30,10 +30,7 @@ export function applyConfigFile(
     outputFormat: format,
   });
 
-  const destinationPath = resolve(
-    options.cwd ?? process.cwd(),
-    options.destination,
-  );
+  const destinationPath = resolve(options.cwd ?? process.cwd(), options.destination);
 
   // check if destination directory exists
   const dir = dirname(destinationPath);

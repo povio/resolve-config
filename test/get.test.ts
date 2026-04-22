@@ -1,5 +1,4 @@
-import { test } from "node:test";
-import assert from "node:assert";
+import { test, expect } from "vitest";
 import { getBoolean, getNumber, getString, getPlain } from "../src";
 
 const tree = {
@@ -14,18 +13,13 @@ const tree = {
 };
 
 test("get", () => {
-  assert.deepStrictEqual(getNumber(tree, "plainnumber"), 2);
-  assert.deepStrictEqual(getNumber(tree, "textnumber"), 2);
-  assert.deepStrictEqual(getBoolean(tree, "booleanfalse"), false);
-  assert.deepStrictEqual(getBoolean(tree, "booleantrue"), true);
-  assert.deepStrictEqual(getBoolean(tree, "texttrue"), true);
-  assert.deepStrictEqual(getBoolean(tree, "textfalse"), false);
-  assert.deepStrictEqual(getPlain(tree, "mysection"), {
-    myparameter: "myvalue",
-  });
-  assert.deepStrictEqual(getString(tree, "mysection.myparameter"), "myvalue");
-  assert.deepStrictEqual(
-    getString(tree, "customsection.myparameter"),
-    `dev with ' " quotes`,
-  );
+  expect(getNumber(tree, "plainnumber")).toStrictEqual(2);
+  expect(getNumber(tree, "textnumber")).toStrictEqual(2);
+  expect(getBoolean(tree, "booleanfalse")).toStrictEqual(false);
+  expect(getBoolean(tree, "booleantrue")).toStrictEqual(true);
+  expect(getBoolean(tree, "texttrue")).toStrictEqual(true);
+  expect(getBoolean(tree, "textfalse")).toStrictEqual(false);
+  expect(getPlain(tree, "mysection")).toStrictEqual({ myparameter: "myvalue" });
+  expect(getString(tree, "mysection.myparameter")).toStrictEqual("myvalue");
+  expect(getString(tree, "customsection.myparameter")).toStrictEqual(`dev with ' " quotes`);
 });

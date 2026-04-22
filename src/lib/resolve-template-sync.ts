@@ -1,9 +1,4 @@
-import {
-  mutateLiteral,
-  resolveTemplateContent,
-  resolveTemplateLiteral,
-  templateRegex,
-} from "./template";
+import { mutateLiteral, resolveTemplateContent, resolveTemplateLiteral, templateRegex } from "./template";
 import { PlainType } from "./types";
 
 /**
@@ -71,13 +66,7 @@ export function resolveTemplateObjectSync(
     if (!(key in obj)) {
       return undefined;
     }
-    return resolveTemplateObjectSync(
-      obj[key],
-      context,
-      subPath.join("."),
-      `${path}.${key}`,
-      cache,
-    );
+    return resolveTemplateObjectSync(obj[key], context, subPath.join("."), `${path}.${key}`, cache);
   }
 
   if (typeof obj === "object" && obj !== null) {
@@ -85,28 +74,14 @@ export function resolveTemplateObjectSync(
 
     if (Array.isArray(obj)) {
       const array = obj
-        .map((item, i) =>
-          resolveTemplateObjectSync(
-            item,
-            context,
-            undefined,
-            `${path}[${i}]`,
-            cache,
-          ),
-        )
+        .map((item, i) => resolveTemplateObjectSync(item, context, undefined, `${path}[${i}]`, cache))
         .filter((item) => item !== undefined);
       return array.length > 0 ? array : undefined;
     }
 
     const resolvedObject: any = {};
     for (const [key, value] of Object.entries(obj)) {
-      const resolvedValue = resolveTemplateObjectSync(
-        value,
-        context,
-        undefined,
-        `${path}.${key}`,
-        cache,
-      );
+      const resolvedValue = resolveTemplateObjectSync(value, context, undefined, `${path}.${key}`, cache);
       if (resolvedValue !== undefined) {
         resolvedObject[key] = resolvedValue;
       }
@@ -132,13 +107,7 @@ export function resolveTemplateObjectSync(
       let result = obj;
       for (const match of matches) {
         const { mutator, value } = match.groups as any;
-        const resolvedValue = resolveTemplateLiteral(
-          value,
-          context,
-          path,
-          cache,
-          false,
-        );
+        const resolvedValue = resolveTemplateLiteral(value, context, path, cache, false);
         result = mutateLiteral(mutator, result, match[0], resolvedValue, path);
       }
       return result;

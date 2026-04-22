@@ -1,64 +1,57 @@
-import { test } from "node:test";
-import assert from "node:assert";
+import { test, expect } from "vitest";
 import { resolveTemplateObjectSync } from "../src/lib/resolve-template-sync";
 
 test("sync template with literal", () => {
   const resolved = resolveTemplateObjectSync("simple string");
-  assert.deepStrictEqual(resolved, "simple string");
+  expect(resolved).toStrictEqual("simple string");
 });
 
 test("sync template with number", () => {
   const resolved = resolveTemplateObjectSync(41);
-  assert.deepStrictEqual(resolved, 41);
+  expect(resolved).toStrictEqual(41);
 });
 
 test("sync template with boolean", () => {
   const resolved = resolveTemplateObjectSync(true);
-  assert.deepStrictEqual(resolved, true);
+  expect(resolved).toStrictEqual(true);
 });
 
 test("sync template with boolean false", () => {
   const resolved = resolveTemplateObjectSync(false);
-  assert.deepStrictEqual(resolved, false);
+  expect(resolved).toStrictEqual(false);
 });
 
 test("sync template with null", () => {
   const resolved = resolveTemplateObjectSync(null);
-  assert.deepStrictEqual(resolved, null);
+  expect(resolved).toStrictEqual(null);
 });
 
 test("sync template with escaped template", () => {
-  // eslint-disable-next-line
-  const resolved = resolveTemplateObjectSync("\${}");
-  assert.deepStrictEqual(resolved, "${}");
+  const resolved = resolveTemplateObjectSync("${}");
+  expect(resolved).toStrictEqual("${}");
 });
 
 test("sync template with undefined", () => {
   const resolved = resolveTemplateObjectSync(undefined);
-  assert.deepStrictEqual(resolved, undefined);
+  expect(resolved).toStrictEqual(undefined);
 });
 
 test("sync template with env variable", () => {
   process.env.TEST = "test";
   const resolved = resolveTemplateObjectSync("${env:TEST}");
-  assert.deepStrictEqual(resolved, "test");
+  expect(resolved).toStrictEqual("test");
 });
 
 test("sync template with env variables", () => {
   process.env.TEST = "test";
   const resolved = resolveTemplateObjectSync("${env:TEST}-thing");
-  assert.deepStrictEqual(resolved, "test-thing");
+  expect(resolved).toStrictEqual("test-thing");
 });
 
 test("sync template with wrong function variables", () => {
-  try {
-    resolveTemplateObjectSync({ a: "${myfunc}-thing" }, {}, "path-to-object");
-  } catch (e: any) {
-    assert.deepStrictEqual(
-      e.message,
-      "Unsupported template literal 'path-to-object.a': 'myfunc'",
-    );
-  }
+  expect(() => resolveTemplateObjectSync({ a: "${myfunc}-thing" }, {}, null, "path-to-object")).toThrow(
+    "Unsupported template literal 'path-to-object.a': 'myfunc'",
+  );
 });
 
 test("sync template with simple object", () => {
@@ -74,7 +67,7 @@ test("sync template with simple object", () => {
     },
   );
 
-  assert.deepStrictEqual(resolved, {
+  expect(resolved).toStrictEqual({
     a: "b",
     c: "local",
     d: "test",
@@ -90,11 +83,12 @@ test("sync template keep only resolved", () => {
       d: "${env:TEST}",
     },
     {
+      stage: "local",
       resolve: "only",
     },
   );
 
-  assert.deepStrictEqual(resolved, {
+  expect(resolved).toStrictEqual({
     c: "local",
     d: "test",
   });
@@ -112,7 +106,7 @@ test("sync template ignore resolved", () => {
     },
   );
 
-  assert.deepStrictEqual(resolved, {
+  expect(resolved).toStrictEqual({
     a: "b",
     d: "${env:TEST}",
   });
@@ -130,7 +124,7 @@ test("sync template remove resolved", () => {
     },
   );
 
-  assert.deepStrictEqual(resolved, {
+  expect(resolved).toStrictEqual({
     a: "b",
   });
 });
@@ -144,11 +138,12 @@ test("sync template with array - only resolved", () => {
       d: "${env:TEST}",
     },
     {
+      stage: "local",
       resolve: "only",
     },
   );
 
-  assert.deepStrictEqual(resolved, {
+  expect(resolved).toStrictEqual({
     c: "local",
     d: "test",
   });
@@ -167,29 +162,13 @@ test("sync template with single property", () => {
       },
     },
     g1: "r",
-    p: "${myfunc}", // should not be resolved
+    p: "${myfunc}",
   };
 
-  assert.deepStrictEqual(
-    resolveTemplateObjectSync(tree, {}, "a1.dd"),
-    undefined,
-  );
-  assert.deepStrictEqual(resolveTemplateObjectSync(tree, {}, "g1"), "r");
-  assert.deepStrictEqual(
-    resolveTemplateObjectSync(tree, {}, "a1.b2"),
-    tree.a1.b2,
-  );
-  assert.deepStrictEqual(
-    resolveTemplateObjectSync(tree, {}, "a1.b2.c3"),
-    tree.a1.b2.c3,
-  );
-  assert.deepStrictEqual(
-    resolveTemplateObjectSync(tree, {}, "a1.b2.c3.d4"),
-    "e",
-  );
-  assert.deepStrictEqual(resolveTemplateObjectSync(tree, {}, "a1.b2.c3.f4"), [
-    "a",
-    "b",
-    "c",
-  ]);
+  expect(resolveTemplateObjectSync(tree, {}, "a1.dd")).toStrictEqual(undefined);
+  expect(resolveTemplateObjectSync(tree, {}, "g1")).toStrictEqual("r");
+  expect(resolveTemplateObjectSync(tree, {}, "a1.b2")).toStrictEqual(tree.a1.b2);
+  expect(resolveTemplateObjectSync(tree, {}, "a1.b2.c3")).toStrictEqual(tree.a1.b2.c3);
+  expect(resolveTemplateObjectSync(tree, {}, "a1.b2.c3.d4")).toStrictEqual("e");
+  expect(resolveTemplateObjectSync(tree, {}, "a1.b2.c3.f4")).toStrictEqual(["a", "b", "c"]);
 });

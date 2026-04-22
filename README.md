@@ -105,26 +105,26 @@ Default path: `.config/{stage}.{module}.yml` (or `.yaml` / `.json`). Top-level k
 
 Each target may define:
 
-| Field | Purpose |
-|-------|---------|
-| `name` | Target id (used with `get` / `apply --target`). |
-| `destination` | Relative path to write when `apply` runs. |
-| `destinationFormat` | Override format (`json`, `yml`, `yaml`, `env`). |
-| `context` | Merged into the literal resolution context (e.g. `aws`). |
-| `values` | Ordered list of fragments to merge. |
+| Field               | Purpose                                                  |
+| ------------------- | -------------------------------------------------------- |
+| `name`              | Target id (used with `get` / `apply --target`).          |
+| `destination`       | Relative path to write when `apply` runs.                |
+| `destinationFormat` | Override format (`json`, `yml`, `yaml`, `env`).          |
+| `context`           | Merged into the literal resolution context (e.g. `aws`). |
+| `values`            | Ordered list of fragments to merge.                      |
 
 Each **value** entry:
 
-| Field | Purpose |
-|-------|---------|
-| `name` | Tree path (`@` = merge into root), supports `__` / `.` nesting. |
-| `value` | Static string. |
-| `valueFrom` | Literal string (`env:…`, `func:…`, `arn:…`) resolved and assigned as a scalar. |
-| `objectFrom` | Like `valueFrom` but the string is parsed as JSON into an object. |
+| Field            | Purpose                                                                               |
+| ---------------- | ------------------------------------------------------------------------------------- |
+| `name`           | Tree path (`@` = merge into root), supports `__` / `.` nesting.                       |
+| `value`          | Static string.                                                                        |
+| `valueFrom`      | Literal string (`env:…`, `func:…`, `arn:…`) resolved and assigned as a scalar.        |
+| `objectFrom`     | Like `valueFrom` but the string is parsed as JSON into an object.                     |
 | `templateModule` | Load `.config/{stage}.{module}` template (same discovery rules as `resolveTemplate`). |
-| `templatePath` | Absolute path override for template file. |
-| `resolve` | `ignore` \| `remove` \| `only` \| `all` for that template. |
-| `ignoreEmpty` | If the template file is missing, skip instead of erroring. |
+| `templatePath`   | Absolute path override for template file.                                             |
+| `resolve`        | `ignore` \| `remove` \| `only` \| `all` for that template.                            |
+| `ignoreEmpty`    | If the template file is missing, skip instead of erroring.                            |
 
 Example (abbreviated):
 

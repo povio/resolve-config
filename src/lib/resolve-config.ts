@@ -24,13 +24,7 @@ export async function resolveConfig(options: {
 
   const configs: Record<string, any> = {};
 
-  for (const {
-    name,
-    values,
-    context,
-    destination,
-    destinationFormat,
-  } of items) {
+  for (const { name, values, context, destination, destinationFormat } of items) {
     if (options.target && name !== options.target) {
       continue;
     }
@@ -77,9 +71,7 @@ export async function resolveConfig(options: {
     }
 
     if ((name || "default") in configs) {
-      throw new Error(
-        `Multiple configs with the same name '${name || "default"}'`,
-      );
+      throw new Error(`Multiple configs with the same name '${name || "default"}'`);
     }
 
     configs[name || "default"] = tree;

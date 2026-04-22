@@ -1,9 +1,4 @@
-import {
-  mutateLiteral,
-  resolveTemplateContent,
-  resolveTemplateLiteral,
-  templateRegex,
-} from "./template";
+import { mutateLiteral, resolveTemplateContent, resolveTemplateLiteral, templateRegex } from "./template";
 import { PlainType } from "./types";
 
 /**
@@ -71,13 +66,7 @@ export async function resolveTemplateObject(
     if (!(key in obj)) {
       return undefined;
     }
-    return resolveTemplateObject(
-      obj[key],
-      context,
-      subPath.join("."),
-      `${path}.${key}`,
-      cache,
-    );
+    return resolveTemplateObject(obj[key], context, subPath.join("."), `${path}.${key}`, cache);
   }
 
   if (typeof obj === "object" && obj !== null) {
@@ -86,15 +75,7 @@ export async function resolveTemplateObject(
     if (Array.isArray(obj)) {
       const array = (
         await Promise.all(
-          obj.map(async (item, i) =>
-            resolveTemplateObject(
-              item,
-              context,
-              undefined,
-              `${path}[${i}]`,
-              cache,
-            ),
-          ),
+          obj.map(async (item, i) => resolveTemplateObject(item, context, undefined, `${path}[${i}]`, cache)),
         )
       ).filter((item) => item !== undefined);
       return array.length > 0 ? array : undefined;
@@ -102,13 +83,7 @@ export async function resolveTemplateObject(
 
     const resolvedObject: any = {};
     for (const [key, value] of Object.entries(obj)) {
-      const resolvedValue = await resolveTemplateObject(
-        value,
-        context,
-        undefined,
-        `${path}.${key}`,
-        cache,
-      );
+      const resolvedValue = await resolveTemplateObject(value, context, undefined, `${path}.${key}`, cache);
       if (resolvedValue !== undefined) {
         resolvedObject[key] = resolvedValue;
       }
@@ -134,13 +109,7 @@ export async function resolveTemplateObject(
       let result = obj;
       for (const match of matches) {
         const { mutator, value } = match.groups as any;
-        const resolvedValue = await resolveTemplateLiteral(
-          value,
-          context,
-          path,
-          cache,
-          true,
-        );
+        const resolvedValue = await resolveTemplateLiteral(value, context, path, cache, true);
         result = mutateLiteral(mutator, result, match[0], resolvedValue, path);
       }
       return result;

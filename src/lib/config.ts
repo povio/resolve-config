@@ -26,10 +26,7 @@ export const ConfigItem = z.object({
 });
 
 export const ConfigItems = z.pipe(
-  z.union([
-    z.array(ConfigItem),
-    z.extend(ConfigItem, { name: z.nullable(z.optional(z.string())) }),
-  ]),
+  z.union([z.array(ConfigItem), z.extend(ConfigItem, { name: z.nullable(z.optional(z.string())) })]),
   z.transform((val) => {
     if (Array.isArray(val)) {
       return val;
@@ -55,9 +52,7 @@ export function resolveResolveConfigs(options: {
   if (options.configs) {
     rawConfigs = options.configs;
   } else {
-    path = options.path
-      ? resolve(cwd, options.path)
-      : resolve(`${cwd}/.config/${stage}.${mod}`);
+    path = options.path ? resolve(cwd, options.path) : resolve(`${cwd}/.config/${stage}.${mod}`);
     let format: string | undefined;
 
     for (const f of ["yml", "yaml", "json"]) {

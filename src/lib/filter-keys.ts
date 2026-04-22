@@ -6,9 +6,7 @@
  * @returns A new object containing only the specified keys with their full paths
  */
 export function filterObjectByKeys(obj: any, _keys: string[] | string): any {
-  const keys = Array.isArray(_keys)
-    ? _keys
-    : _keys.split(/,/).map((k) => k.trim());
+  const keys = Array.isArray(_keys) ? _keys : _keys.split(/,/).map((k) => k.trim());
 
   if (!obj || typeof obj !== "object" || Array.isArray(obj)) {
     return obj;

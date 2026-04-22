@@ -1,4 +1,4 @@
-import { test } from "node:test";
+import { test, expect } from "vitest";
 import { resolveConfigSync } from "../src/lib/resolve-config-sync";
 
 const cwd = __dirname;
@@ -13,17 +13,13 @@ test("resolve sync config", () => {
   });
 });
 
-test("resolve sync config async error", async () => {
-  try {
+test("resolve sync config async error", () => {
+  expect(() =>
     resolveConfigSync({
       stage: "dev",
       cwd,
       module: "deploy",
       target: "aws",
-    });
-  } catch (e: any) {
-    if (!e.message.includes("Can not resolve async")) {
-      throw e;
-    }
-  }
+    }),
+  ).toThrow(/Can not resolve async/);
 });

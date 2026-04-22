@@ -1,5 +1,4 @@
-import { test } from "node:test";
-import assert from "node:assert";
+import { test, expect } from "vitest";
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { parse as parseYaml } from "yaml";
@@ -9,7 +8,6 @@ import { applyCommandHelper } from "../src/commands/apply.command";
 
 const cwd = __dirname;
 
-/** Multi-target manifest: `test/.config/staging.app.yml` (pass path without extension). */
 const stagingManifestPath = ".config/staging.app";
 const stagingOutDir = join(cwd, "out");
 
@@ -28,7 +26,7 @@ test("resolve config", async () => {
     target: "api",
   });
 
-  assert.deepStrictEqual(resolved, {
+  expect(resolved).toStrictEqual({
     customsection: {
       myparameter: "dev",
     },
@@ -45,10 +43,9 @@ const isSSMRunning = fetch("http://localhost:4566")
   .then((res) => res.status === 200)
   .catch(() => false);
 
-test("resolve config with ssm and secret", async (t) => {
-  // test if ssm is running locally, if not, skip the test
+test("resolve config with ssm and secret", async (context) => {
   if (!(await isSSMRunning)) {
-    t.skip("SSM is not running locally");
+    context.skip();
     return;
   }
 
@@ -71,17 +68,17 @@ test("resolve all targets from manifest without apply", async () => {
     apply: false,
   });
 
-  assert.deepStrictEqual(all.frontend, {
+  expect(all.frontend).toStrictEqual({
     api: { version: 1, name: "demo-service" },
     meta: { env: "staging" },
   });
 
-  assert.deepStrictEqual(all.backend, {
+  expect(all.backend).toStrictEqual({
     service: { name: "payments-api" },
     settings: { ttl: 30, retries: 3 },
   });
 
-  assert.deepStrictEqual(all.with_optional_template, {
+  expect(all.with_optional_template).toStrictEqual({
     marker: "present",
   });
 });
@@ -98,13 +95,13 @@ test("resolve single named target from manifest", async () => {
     apply: false,
   });
 
-  assert.deepStrictEqual(backend, {
+  expect(backend).toStrictEqual({
     service: { name: "single" },
     settings: {},
   });
 });
 
-test("resolveConfigSync matches resolveConfig without AWS ARNs", () => {
+test("resolveConfigSync matches resolveConfig without AWS ARNs", async () => {
   process.env.USECASE_SERVICE_NAME = "sync-parity";
   process.env.USECASE_JSON_BLOB = JSON.stringify({ a: 1 });
 
@@ -116,15 +113,15 @@ test("resolveConfigSync matches resolveConfig without AWS ARNs", () => {
     apply: false,
   });
 
-  return resolveConfig({
+  const asyncResult = await resolveConfig({
     cwd,
     stage: "staging",
     path: stagingManifestPath,
     target: "backend",
     apply: false,
-  }).then((asyncResult) => {
-    assert.deepStrictEqual(syncResult, asyncResult);
   });
+
+  expect(syncResult).toStrictEqual(asyncResult);
 });
 
 test("missing template with ignoreEmpty still merges other values", async () => {
@@ -136,8 +133,8 @@ test("missing template with ignoreEmpty still merges other values", async () => 
     apply: false,
   });
 
-  assert.deepStrictEqual(resolved, { marker: "present" });
-  assert.ok(!("from_missing" in (resolved as object)));
+  expect(resolved).toStrictEqual({ marker: "present" });
+  expect("from_missing" in (resolved as object)).toBe(false);
 });
 
 test("apply writes JSON and YAML under destination paths", async () => {
@@ -154,8 +151,8 @@ test("apply writes JSON and YAML under destination paths", async () => {
     });
 
     const jsonPath = join(stagingOutDir, "frontend.json");
-    assert.ok(existsSync(jsonPath), "frontend.json should exist");
-    assert.deepStrictEqual(JSON.parse(readFileSync(jsonPath, "utf8")), {
+    expect(existsSync(jsonPath), "frontend.json should exist").toBe(true);
+    expect(JSON.parse(readFileSync(jsonPath, "utf8"))).toStrictEqual({
       api: { version: 1, name: "demo-service" },
       meta: { env: "staging" },
     });
@@ -168,9 +165,9 @@ test("apply writes JSON and YAML under destination paths", async () => {
     });
 
     const ymlPath = join(stagingOutDir, "backend.yml");
-    assert.ok(existsSync(ymlPath), "backend.yml should exist");
+    expect(existsSync(ymlPath), "backend.yml should exist").toBe(true);
     const backendTree = parseYaml(readFileSync(ymlPath, "utf8"));
-    assert.deepStrictEqual(backendTree, {
+    expect(backendTree).toStrictEqual({
       service: { name: "apply-test" },
       settings: { region: "eu-west-1" },
     });
@@ -191,13 +188,11 @@ test("apply without target writes every target that has a destination", async ()
       path: stagingManifestPath,
     });
 
-    assert.ok(existsSync(join(stagingOutDir, "frontend.json")));
-    assert.ok(existsSync(join(stagingOutDir, "backend.yml")));
-    assert.deepStrictEqual(
-      JSON.parse(readFileSync(join(stagingOutDir, "frontend.json"), "utf8"))
-        .meta,
-      { env: "staging" },
-    );
+    expect(existsSync(join(stagingOutDir, "frontend.json"))).toBe(true);
+    expect(existsSync(join(stagingOutDir, "backend.yml"))).toBe(true);
+    expect(JSON.parse(readFileSync(join(stagingOutDir, "frontend.json"), "utf8")).meta).toStrictEqual({
+      env: "staging",
+    });
   } finally {
     cleanupStagingOutDir();
   }

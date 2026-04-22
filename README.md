@@ -1,94 +1,132 @@
 # ResolveConfig
 
-Resolve config files using templates.
+Layer and resolve configuration from YAML, JSON, or `.env` templates: merge multiple sources, interpolate literals (environment, built-in functions, AWS Parameter Store / Secrets Manager), write resolved files, and read values from the CLI or Node.js.
 
-Install locally:
+**Requirements:** Node.js ≥ 22, Yarn ≥ 4 (see `package.json` `engines`).
+
+## Features
+
+- Layered manifests: `.config/{stage}.{module}.yml` (or `.yaml` / `.json`) with named targets under `configs`
+- CLI: `apply`, `get`, `set`, `template`
+- Literals in strings and manifest fields: `env:`, `func:`, `arn:…`, `$object{…}`
+- Per-template `resolve` modes, root merge with `name: "@"`, nested paths via `.` or `__`
+- Async or sync `resolveConfig` / `resolveTemplate` plus helpers (dotenv, YAML, typed getters)
+- Optional `@aws-sdk/*` peer packages for SSM / Secrets Manager ARNs
+
+## Install
 
 ```bash
 yarn add @povio/resolve-config
 ```
 
-Use in CLI
+Run the CLI without installing (pick compatible AWS SDK versions if you use ARNs):
 
 ```bash
-yarn dlx @povio/resolve-config@1.0 apply
+yarn dlx @povio/resolve-config@1.3.0 apply
 ```
 
-### CLI
+## CLI
 
-Generate environment files based on a config file
+Global flags (where supported): `--stage`, `--cwd`, `--module`, `--path`, `--verbose`. `STAGE` environment variable maps to `--stage` when set.
+
+### `apply`
+
+Resolves the manifest and writes targets (use `--target` for one).
 
 ```bash
-# default, stage=local module=config
+# Defaults: stage from $STAGE or "local", module "config" → .config/local.config.yml
 yarn resolve-config apply
 
-# short form, [stage].[module]
+# Shorthand → .config/myapp-dev.backend.yml
 yarn resolve-config apply myapp-dev.backend
 
-# custom stage/module, resolves into .config/myapp-dev.backend.yml
 yarn resolve-config apply --stage myapp-dev --module backend
-
-# by path and stage
 yarn resolve-config apply --path .config/myapp-dev.backend.yml --stage myapp-dev
 
-# only 1 target
+# Only one named target from the manifest
 yarn resolve-config apply myapp-dev.backend --target bootstrap
 ```
 
-Get values/trees from resolved targets
+`apply` writes each target’s `destination`; format follows the extension (`.json`, `.yml` / `.yaml`, `.env`, `.env.*`) or `destinationFormat`. Missing parent directories are created.
+
+### `get`
+
+Resolves one target and prints to stdout. `--target` is required unless you use the `stage.module.target` positional (stage, module, and target name).
 
 ```bash
-# short form
 yarn resolve-config get myapp-dev.config.resolved
 
-# specify property to return
-yarn resolve-config get myapp-dev.config.resolved:database.password
+# Property: use . or __ for path segments
+yarn resolve-config get myapp-dev.config.resolved --property database.password
+yarn resolve-config get myapp-dev.config.resolved --property database__password
 
-# specify output format in  json | env | yml
+# Output: json (default), yaml | yml, env, env-json
 yarn resolve-config get myapp-dev.config.resolved --outputFormat yml
 
-# long form
-yarn resolve-config get --stage myapp-dev --module config --target resolved --property database.password --outputFormat yml
+yarn resolve-config get --stage myapp-dev --module config --target resolved \
+  --property database.password --outputFormat yml
 
-# specify list of keys and apply them as env
-eval `yarn start get dev.config.resolved --outputFormat env --keys mysection.myparameter  --cwd ./test --prefix 'export '`
+# Subset of keys (comma-separated), nested paths with . or __
+yarn resolve-config get dev.config.resolved --outputFormat env \
+  --keys mysection.myparameter --cwd ./test --prefix 'export '
 ```
 
-Set value in a config file
+`--keys` and `--property` cannot be used together.
+
+### `set`
+
+Updates a YAML file under `.config/` (merge by default). Requires either `--property` (with `--value`) or `--json`. YAML output format only (`yml` / `yaml`).
 
 ```bash
-yarn start set --path .config/myapp-dev.config.override.yml --property database.password --value 'mypass'
-yarn start set --stage myapp-dev --module config.override --property database.password --value 'mypass'
+yarn resolve-config set --path .config/myapp-dev.config.override.yml \
+  --property database.password --value 'mypass'
+
+yarn resolve-config set --stage myapp-dev --module config.override \
+  --property database.password --value 'mypass'
+
+# Replace entire file contents
+yarn resolve-config set --path .config/foo.yml --json '{"a":1}' --replace
 ```
 
-### SDK
+### `template`
 
-```typescript
-import { loadConfig, resolveConfig, getString, getNumber, getBoolean } from "@povio/resolve-config";
+Resolves one template module or file and prints the result. Without `--path` / `--format`, loads `.config/{stage}.{module}.(yml|yaml|json|env)` or `.config/{stage}.{module}.template.(…)`.
 
-// will only load sync values
-const config1 = resolveConfigSync({
-  stage: process.env.STAGE,
-  module: "backend",
-  target: "resolved",
-});
-
-// will load all values
-const config2 = await resolveConfig({
-  stage: process.env.STAGE,
-  module: "backend",
-  target: "bootstrap",
-});
-
-// get a value
-const mypass = getString("database.password");
-const mynum = getNumber("database.port");
-const mybool = getBoolean("database.enabled");
+```bash
+yarn resolve-config template --module api.template --resolve only --outputFormat yml
+yarn resolve-config template --path ./.config/local.api.yml --property section.key
 ```
 
-## Configuration
+Flags: `--format`, `--property`, `--resolve`, `--ignoreEmpty`, `--outputFormat` (`json` | `yml` | `yaml` | `env`).
 
-`.config/[stage].[module].yml`, eq `.config/myapp-dev.config.yml`
+## Configuration manifest
+
+Default path: `.config/{stage}.{module}.yml` (or `.yaml` / `.json`). Top-level key **`configs`**: either an array of targets or a single object (treated as one target named `default`).
+
+Each target may define:
+
+| Field | Purpose |
+|-------|---------|
+| `name` | Target id (used with `get` / `apply --target`). |
+| `destination` | Relative path to write when `apply` runs. |
+| `destinationFormat` | Override format (`json`, `yml`, `yaml`, `env`). |
+| `context` | Merged into the literal resolution context (e.g. `aws`). |
+| `values` | Ordered list of fragments to merge. |
+
+Each **value** entry:
+
+| Field | Purpose |
+|-------|---------|
+| `name` | Tree path (`@` = merge into root), supports `__` / `.` nesting. |
+| `value` | Static string. |
+| `valueFrom` | Literal string (`env:…`, `func:…`, `arn:…`) resolved and assigned as a scalar. |
+| `objectFrom` | Like `valueFrom` but the string is parsed as JSON into an object. |
+| `templateModule` | Load `.config/{stage}.{module}` template (same discovery rules as `resolveTemplate`). |
+| `templatePath` | Absolute path override for template file. |
+| `resolve` | `ignore` \| `remove` \| `only` \| `all` for that template. |
+| `ignoreEmpty` | If the template file is missing, skip instead of erroring. |
+
+Example (abbreviated):
 
 ```yaml
 configs:
@@ -138,34 +176,45 @@ configs:
 
 ## Templates
 
+Template files are YAML, JSON, or `.env` shaped trees. String leaves may include placeholders matching `\$[a-z]*\{…}`.
+
 ```yaml
-# static values
-section1:
-  myparameter: mylvalue
-  deepsection:
-    myparameter2: mylvalue
-
-# functions
-section2:
-  stage: ${func:stage}
-  timeatrender: ${func:timestamp}
-
-# environment
-section3:
-  fromenv: ${env:APP_ENV}
+app: ${env:APP_ENV}
+stage: ${func:stage}
+generatedAt: ${func:timestamp}
+secretblock: $object{arn:aws:ssm:us-east-1:1234567890:parameter/myapp/feature/block}
 ```
 
-## Plugins
+## SDK
 
-### AWS
+```typescript
+// Sync: no async AWS literals in template steps
+const syncTree = resolveConfigSync({
+  stage: process.env.STAGE,
+  module: "backend",
+  target: "resolved",
+  apply: false,
+});
 
-Install dependencies
+// Async: full resolution including ARNs
+const asyncTree = await resolveConfig({
+  stage: process.env.STAGE,
+  module: "backend",
+  target: "bootstrap",
+  apply: true,
+  context: { aws: { region: "us-east-1", accountId: "1234567890" } },
+});
 
-```bash
-yarn add @aws-sdk/client-ssm  @aws-sdk/client-sts  @aws-sdk/credential-providers
+const password = getString(asyncTree, "database.password");
+const port = getNumber(asyncTree, "database.port");
+const enabled = getBoolean(asyncTree, "database.enabled");
 ```
 
-Use in CLI
+## AWS plugin
+
+Optional `@aws-sdk/client-ssm`, `@aws-sdk/client-secrets-manager`, `@aws-sdk/client-sts`, and `@aws-sdk/credential-providers` are loaded when ARN literals resolve. `context.aws` can set `accountId`, `region`, and optional `credentials` / `endpoint`.
+
+Install optional peer dependencies when using `arn:…` literals:
 
 ```bash
 yarn dlx -p @aws-sdk/client-ssm -p @aws-sdk/client-sts -p @aws-sdk/credential-providers @povio/resolve-config@1.0 apply
@@ -177,7 +226,7 @@ Use in resolver:
 section:
   # Fetch value from SSM
   secret: ${arn:aws:ssm:::parameter/myapp/feature/flags}
-  # Expand a JSON vaule into a object, eq
+  # Expand a JSON value into an object, e.g.
   # secretblock:
   #   val: 1
   secretblock: $object{arn:aws:ssm:::parameter/myapp/feature/block}

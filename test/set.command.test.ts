@@ -1,7 +1,13 @@
 import { test } from "node:test";
 import assert from "node:assert";
 import { join } from "node:path";
-import { existsSync, readFileSync, unlinkSync } from "node:fs";
+import {
+  existsSync,
+  readFileSync,
+  unlinkSync,
+  writeFileSync,
+} from "node:fs";
+import { parse as parseYaml } from "yaml";
 import { setCommandHelper } from "../src/commands/set.command";
 
 function cleanupFile(filepath: string) {
@@ -97,6 +103,27 @@ test("set simple property for config set", async () => {
       /database:\s*user:\s*admin\s*password:\s*hidden/,
       "Should contain the set property",
     );
+  } finally {
+    cleanupFile(testFilePath);
+  }
+});
+
+test("set deep-merges into existing yaml when replace is not set", async () => {
+  const testFile = join(".config", "tmp-set-merge.yml");
+  const testFilePath = join(__dirname, testFile);
+  cleanupFile(testFilePath);
+  writeFileSync(testFilePath, "root:\n  a: 1\n", "utf8");
+  try {
+    await setCommandHelper({
+      cwd: __dirname,
+      path: testFile,
+      property: "root.b",
+      value: "2",
+    });
+    const doc = parseYaml(readFileSync(testFilePath, "utf8")) as {
+      root: { a: number; b: string };
+    };
+    assert.deepStrictEqual(doc.root, { a: 1, b: "2" });
   } finally {
     cleanupFile(testFilePath);
   }

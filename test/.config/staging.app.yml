@@ -1,0 +1,26 @@
+configs:
+  - name: frontend
+    destination: ./out/frontend.json
+    destinationFormat: json
+    values:
+      - name: "@"
+        templateModule: app.template
+        resolve: all
+      - name: meta__env
+        value: staging
+
+  - name: backend
+    destination: ./out/backend.yml
+    values:
+      - name: service__name
+        valueFrom: env:USECASE_SERVICE_NAME
+      - name: settings
+        objectFrom: env:USECASE_JSON_BLOB
+
+  - name: with_optional_template
+    values:
+      - name: from_missing
+        templateModule: missing.module
+        ignoreEmpty: true
+      - name: marker
+        value: present

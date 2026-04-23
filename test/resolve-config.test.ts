@@ -176,6 +176,41 @@ test("apply writes JSON and YAML under destination paths", async () => {
   }
 });
 
+test("applyEnv sets resolved values on process.env when apply is true", async () => {
+  delete process.env.service__name;
+  delete process.env.service__port;
+
+  await resolveConfig({
+    cwd,
+    stage: "staging",
+    path: stagingManifestPath,
+    target: "env_target",
+    apply: true,
+  });
+
+  expect(process.env.service__name).toBe("env-applied");
+  expect(process.env.service__port).toBe("8080");
+
+  delete process.env.service__name;
+  delete process.env.service__port;
+});
+
+test("applyEnv is a no-op when apply is false", async () => {
+  delete process.env.service__name;
+  delete process.env.service__port;
+
+  await resolveConfig({
+    cwd,
+    stage: "staging",
+    path: stagingManifestPath,
+    target: "env_target",
+    apply: false,
+  });
+
+  expect(process.env.service__name).toBeUndefined();
+  expect(process.env.service__port).toBeUndefined();
+});
+
 test("apply without target writes every target that has a destination", async () => {
   cleanupStagingOutDir();
   try {

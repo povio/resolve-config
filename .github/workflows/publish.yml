@@ -20,6 +20,14 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
       - run: npm pack
-      - run: npm publish
+      - name: Publish to npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if printf '%s' "$VERSION" | grep -q -- '-'; then
+            echo "Prerelease version $VERSION — publishing with dist-tag beta"
+            npm publish --tag beta
+          else
+            npm publish
+          fi

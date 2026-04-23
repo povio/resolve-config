@@ -24,3 +24,11 @@ configs:
         ignoreEmpty: true
       - name: marker
         value: present
+
+  - name: env_target
+    applyEnv: __
+    values:
+      - name: service__name
+        value: env-applied
+      - name: service__port
+        value: "8080"

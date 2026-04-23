@@ -20,6 +20,7 @@ export const ConfigItem = z.object({
   name: z.nullable(z.optional(z.string())),
   destination: z.nullable(z.optional(z.string())),
   destinationFormat: z.nullable(z.optional(z.string())),
+  applyEnv: z.nullable(z.optional(z.enum(["json", "__"]))),
   template: z.nullable(z.optional(z.string())),
   values: z.array(ConfigItemValue),
   context: z.nullable(z.optional(z.record(z.string(), z.any()))),

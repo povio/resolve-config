@@ -2,6 +2,7 @@ import deepmerge from "deepmerge";
 import { resolveTemplateLiteral } from "./template";
 import { resolveResolveConfigs } from "./config";
 import { applyConfigFile } from "./apply";
+import { applyEnv } from "./plugin-env";
 import { resolveTemplateSync } from "./resolve-template-sync";
 import { mergeIntoTree } from "./merge";
 import { PlainNestedType } from "./types";
@@ -24,7 +25,7 @@ export function resolveConfigSync(options: {
 
   const configs: Record<string, any> = {};
 
-  for (const { name, values, context, destination, destinationFormat } of items) {
+  for (const { name, values, context, destination, destinationFormat, applyEnv: applyEnvFormat } of items) {
     if (options.target && name !== options.target) {
       continue;
     }
@@ -82,6 +83,10 @@ export function resolveConfigSync(options: {
         destination,
         destinationFormat,
       });
+    }
+
+    if (applyEnvFormat && options.apply) {
+      applyEnv(tree, applyEnvFormat);
     }
   }
 

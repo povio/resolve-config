@@ -110,6 +110,7 @@ Each target may define:
 | `name`              | Target id (used with `get` / `apply --target`).          |
 | `destination`       | Relative path to write when `apply` runs.                |
 | `destinationFormat` | Override format (`json`, `yml`, `yaml`, `env`).          |
+| `applyEnv`          | On `apply`, set resolved tree on `process.env` (`__` or `json` flattening). |
 | `context`           | Merged into the literal resolution context (e.g. `aws`). |
 | `values`            | Ordered list of fragments to merge.                      |
 

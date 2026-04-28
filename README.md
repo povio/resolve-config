@@ -231,3 +231,15 @@ section:
   #   val: 1
   secretblock: $object{arn:aws:ssm:::parameter/myapp/feature/block}
 ```
+
+## Publishing (maintainers)
+
+Clean `git status`, then bump if needed, build, publish ([`@povio/resolve-config`](https://www.npmjs.com/package/@povio/resolve-config), `--access public`):
+
+```bash
+npm version <semver> --no-git-tag-version   # skip if package.json already matches
+npm run build
+npm publish --access public                 # stable → latest
+# npm publish --tag beta --access public    # prerelease: --tag = first label in version (e.g. beta)
+# npm publish --dry-run --access public     # optional; add --tag for prerelease
+```

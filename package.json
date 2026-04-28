@@ -31,8 +31,7 @@
     "format": "oxfmt .",
     "format:check": "oxfmt --check .",
     "lint": "oxfmt --check . && oxlint --tsconfig=tsconfig.json",
-    "lint:fix": "oxfmt . && oxlint --fix --tsconfig=tsconfig.json",
-    "push": "pnpm exec ./scripts/publish.sh"
+    "lint:fix": "oxfmt . && oxlint --fix --tsconfig=tsconfig.json"
   },
   "devDependencies": {
     "@aws-sdk/client-secrets-manager": "^3.1034.0",

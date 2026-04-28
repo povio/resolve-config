@@ -19,4 +19,4 @@ export { setTemplate } from "./lib/set-template";
 
 export { getNumber, getString, getBoolean, getPlain } from "./lib/get";
 
-export { mutateLiteral, resolveTemplateLiteral, resolveTemplateContent } from "./lib/template";
+export { loadContextFile, mutateLiteral, resolveTemplateLiteral, resolveTemplateContent } from "./lib/template";

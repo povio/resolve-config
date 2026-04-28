@@ -22,6 +22,7 @@ export const ConfigItem = z.object({
   destinationFormat: z.nullable(z.optional(z.string())),
   template: z.nullable(z.optional(z.string())),
   values: z.array(ConfigItemValue),
+  contextFile: z.nullable(z.optional(z.string())),
   context: z.nullable(z.optional(z.record(z.string(), z.any()))),
 });
 

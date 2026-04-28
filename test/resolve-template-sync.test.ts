@@ -36,6 +36,16 @@ test("sync template with undefined", () => {
   expect(resolved).toStrictEqual(undefined);
 });
 
+test("sync template with context literal", () => {
+  const resolved = resolveTemplateObjectSync("${context:foo}", { foo: "bar" });
+  expect(resolved).toStrictEqual("bar");
+});
+
+test("sync template with nested context literal", () => {
+  const resolved = resolveTemplateObjectSync("${context:a.b}", { a: { b: 2 } });
+  expect(resolved).toStrictEqual(2);
+});
+
 test("sync template with env variable", () => {
   process.env.TEST = "test";
   const resolved = resolveTemplateObjectSync("${env:TEST}");

@@ -24,3 +24,26 @@ configs:
         ignoreEmpty: true
       - name: marker
         value: present
+
+  - name: with_context_file
+    contextFile: .config/staging.context.fixture.json
+    values:
+      - name: settings__region
+        valueFrom: context:region
+      - name: settings__fromCtx
+        valueFrom: context:nested.code
+
+  - name: with_context_literal
+    context:
+      tenantId: tenant-xyz
+    values:
+      - name: tenant
+        valueFrom: context:tenantId
+
+  - name: with_context_file_overridden
+    contextFile: .config/staging.context.fixture.json
+    context:
+      region: override-region
+    values:
+      - name: settings__region
+        valueFrom: context:region

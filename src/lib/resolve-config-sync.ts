@@ -1,5 +1,5 @@
 import deepmerge from "deepmerge";
-import { resolveTemplateLiteral } from "./template";
+import { loadContextFile, resolveTemplateLiteral } from "./template";
 import { resolveResolveConfigs } from "./config";
 import { applyConfigFile } from "./apply";
 import { resolveTemplateSync } from "./resolve-template-sync";
@@ -24,10 +24,14 @@ export function resolveConfigSync(options: {
 
   const configs: Record<string, any> = {};
 
-  for (const { name, values, context, destination, destinationFormat } of items) {
+  for (const { name, values, context, contextFile, destination, destinationFormat } of items) {
     if (options.target && name !== options.target) {
       continue;
     }
+
+    const targetBaseContext = contextFile
+      ? deepmerge(deepmerge({ stage }, loadContextFile(cwd, contextFile)), options?.context ?? {})
+      : globalContext;
 
     const cache = new Map();
     let tree: any = {};
@@ -39,7 +43,7 @@ export function resolveConfigSync(options: {
       } else if (value.valueFrom) {
         resolvedValue = resolveTemplateLiteral(
           value.valueFrom,
-          deepmerge(globalContext ?? {}, context ?? {}),
+          deepmerge(targetBaseContext ?? {}, context ?? {}),
           value.name,
           cache,
           false,
@@ -47,7 +51,7 @@ export function resolveConfigSync(options: {
       } else if (value.objectFrom) {
         resolvedValue = resolveTemplateLiteral(
           value.objectFrom,
-          deepmerge(globalContext ?? {}, context ?? {}),
+          deepmerge(targetBaseContext ?? {}, context ?? {}),
           value.name,
           cache,
           false,
@@ -61,7 +65,7 @@ export function resolveConfigSync(options: {
           resolve: value.resolve,
           path: value.templatePath,
           ignoreEmpty: value.ignoreEmpty,
-          context: deepmerge(globalContext ?? {}, context ?? {}),
+          context: deepmerge(targetBaseContext ?? {}, context ?? {}),
         });
       }
 

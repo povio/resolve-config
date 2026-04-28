@@ -124,6 +124,44 @@ test("resolveConfigSync matches resolveConfig without AWS ARNs", async () => {
   expect(syncResult).toStrictEqual(asyncResult);
 });
 
+test("contextFile merges into resolution context for literals", async () => {
+  const resolved = await resolveConfig({
+    cwd,
+    stage: "staging",
+    path: stagingManifestPath,
+    target: "with_context_file",
+    apply: false,
+  });
+
+  expect(resolved).toStrictEqual({
+    settings: { region: "eu-west-1", fromCtx: "ctx-from-file" },
+  });
+});
+
+test("context literal resolves from target context field", async () => {
+  const resolved = await resolveConfig({
+    cwd,
+    stage: "staging",
+    path: stagingManifestPath,
+    target: "with_context_literal",
+    apply: false,
+  });
+
+  expect(resolved).toStrictEqual({ tenant: "tenant-xyz" });
+});
+
+test("target context field overrides contextFile for overlapping keys", async () => {
+  const resolved = await resolveConfig({
+    cwd,
+    stage: "staging",
+    path: stagingManifestPath,
+    target: "with_context_file_overridden",
+    apply: false,
+  });
+
+  expect(resolved).toStrictEqual({ settings: { region: "override-region" } });
+});
+
 test("missing template with ignoreEmpty still merges other values", async () => {
   const resolved = await resolveConfig({
     cwd,

@@ -7,6 +7,20 @@ import { PlainType, PlainNestedType } from "./types";
 
 export const templateRegex = /\$(?<mutator>[a-z]+)?\{(?<value>[^}]+)\}/g;
 
+function getFromPath(obj: Record<string, any> | undefined, dottedPath: string): any {
+  if (obj === undefined || obj === null || dottedPath === "") {
+    return undefined;
+  }
+  let cur: any = obj;
+  for (const part of dottedPath.split(".")) {
+    if (cur === undefined || cur === null || typeof cur !== "object") {
+      return undefined;
+    }
+    cur = cur[part];
+  }
+  return cur;
+}
+
 /**
  * Mutates a literal string based on the specified mutator type by
  *  replacing or resolving matched substrings
@@ -58,6 +72,14 @@ export function resolveTemplateLiteral(
   switch (command) {
     case "env": {
       result = process.env[args.join(":")];
+      break;
+    }
+    case "context": {
+      const keyPath = args.join(":").trim();
+      if (!keyPath) {
+        throw new Error(`Missing argument '${path}' context`);
+      }
+      result = getFromPath(context, keyPath);
       break;
     }
     case "func": {
@@ -193,4 +215,35 @@ export function resolveTemplateContent(options: {
     path,
     stage,
   };
+}
+
+/**
+ * Load a JSON, YAML, or env file as a plain object for use as resolution context.
+ * Path is resolved relative to cwd.
+ */
+export function loadContextFile(cwd: string, relativePath: string): PlainNestedType {
+  const path = resolve(cwd, relativePath);
+  if (!existsSync(path)) {
+    throw new Error(`Context file '${path}' not found`);
+  }
+  const content = readFileSync(path, "utf8");
+  const extension = path.split(".").pop()?.toLowerCase();
+  let format = extension;
+  if (!["json", "yml", "yaml", "env"].includes(format ?? "")) {
+    const name = basename(path);
+    if (name.startsWith(".env")) {
+      format = "env";
+    }
+  }
+  switch (format) {
+    case "env":
+      return parseEnv(content);
+    case "json":
+      return JSON.parse(content);
+    case "yml":
+    case "yaml":
+      return parseYaml(content);
+    default:
+      throw new Error(`Unsupported context file format for '${path}' (use .json, .yml, .yaml, or .env)`);
+  }
 }

@@ -8,7 +8,7 @@ Layer and resolve configuration from YAML, JSON, or `.env` templates: merge mult
 
 - Layered manifests: `.config/{stage}.{module}.yml` (or `.yaml` / `.json`) with named targets under `configs`
 - CLI: `apply`, `get`, `set`, `template`
-- Literals in strings and manifest fields: `env:`, `func:`, `arn:…`, `$object{…}`
+- Literals in strings and manifest fields: `env:`, `func:`, `context:`, `arn:…`, `$object{…}`
 - Per-template `resolve` modes, root merge with `name: "@"`, nested paths via `.` or `__`
 - Async or sync `resolveConfig` / `resolveTemplate` plus helpers (dotenv, YAML, typed getters)
 - Optional `@aws-sdk/*` peer packages for SSM / Secrets Manager ARNs
@@ -110,7 +110,8 @@ Each target may define:
 | `name`              | Target id (used with `get` / `apply --target`).          |
 | `destination`       | Relative path to write when `apply` runs.                |
 | `destinationFormat` | Override format (`json`, `yml`, `yaml`, `env`).          |
-| `context`           | Merged into the literal resolution context (e.g. `aws`). |
+| `contextFile`       | Path relative to `--cwd`: load JSON, YAML, or `.env` and merge into the resolution context after `stage`, before `resolveConfig({ context })`. |
+| `context`           | Merged into the literal resolution context per value (e.g. `aws`); overrides `contextFile` and SDK `context` for overlapping keys. |
 | `values`            | Ordered list of fragments to merge.                      |
 
 Each **value** entry:
@@ -119,7 +120,7 @@ Each **value** entry:
 | ---------------- | ------------------------------------------------------------------------------------- |
 | `name`           | Tree path (`@` = merge into root), supports `__` / `.` nesting.                       |
 | `value`          | Static string.                                                                        |
-| `valueFrom`      | Literal string (`env:…`, `func:…`, `arn:…`) resolved and assigned as a scalar.        |
+| `valueFrom`      | Literal string (`env:…`, `func:…`, `context:…`, `arn:…`) resolved and assigned as a scalar. |
 | `objectFrom`     | Like `valueFrom` but the string is parsed as JSON into an object.                     |
 | `templateModule` | Load `.config/{stage}.{module}` template (same discovery rules as `resolveTemplate`). |
 | `templatePath`   | Absolute path override for template file.                                             |
@@ -150,11 +151,17 @@ configs:
         # expand json into object
         objectFrom: arn:aws:ssm:::parameter/myapp/feature/flags
 
-    # context that plugins can use
+    # context that plugins and context: literals can use
     context:
       aws:
         accountId: "1234567890"
         region: "us-east-1"
+
+  - name: from_shared_context
+    contextFile: ./.config/shared-context.json
+    values:
+      - name: service__name
+        valueFrom: context:serviceName
 
   - name: resolved
     values:
@@ -178,9 +185,12 @@ configs:
 
 Template files are YAML, JSON, or `.env` shaped trees. String leaves may include placeholders matching `\$[a-z]*\{…}`.
 
+**`context:`** reads a value from the resolution context (manifest `context`, `contextFile`, SDK `context`, plus `stage`). Use a property path with dots for nesting, e.g. `context:tenantId` or `context:aws.region`. After the first `:`, remaining colons are kept (same idea as `env:` for odd key names).
+
 ```yaml
 app: ${env:APP_ENV}
 stage: ${func:stage}
+tenant: ${context:tenantId}
 generatedAt: ${func:timestamp}
 secretblock: $object{arn:aws:ssm:us-east-1:1234567890:parameter/myapp/feature/block}
 ```
@@ -202,6 +212,7 @@ const asyncTree = await resolveConfig({
   module: "backend",
   target: "bootstrap",
   apply: true,
+  // Merged after stage (and after any target `contextFile`); target inline `context` in YAML still wins on conflicts.
   context: { aws: { region: "us-east-1", accountId: "1234567890" } },
 });
 

@@ -1,6 +1,6 @@
 import deepmerge from "deepmerge";
 import { resolveTemplate } from "./resolve-template";
-import { resolveTemplateLiteral } from "./template";
+import { loadContextFile, resolveTemplateLiteral } from "./template";
 import { resolveResolveConfigs } from "./config";
 import { applyConfigFile } from "./apply";
 import { mergeIntoTree } from "./merge";
@@ -24,10 +24,14 @@ export async function resolveConfig(options: {
 
   const configs: Record<string, any> = {};
 
-  for (const { name, values, context, destination, destinationFormat } of items) {
+  for (const { name, values, context, contextFile, destination, destinationFormat } of items) {
     if (options.target && name !== options.target) {
       continue;
     }
+
+    const targetBaseContext = contextFile
+      ? deepmerge(deepmerge({ stage }, loadContextFile(cwd, contextFile)), options?.context ?? {})
+      : globalContext;
 
     const cache = new Map();
     let tree: any = {};
@@ -39,7 +43,7 @@ export async function resolveConfig(options: {
       } else if (value.valueFrom) {
         resolvedValue = await resolveTemplateLiteral(
           value.valueFrom,
-          deepmerge(globalContext ?? {}, context ?? {}),
+          deepmerge(targetBaseContext ?? {}, context ?? {}),
           value.name,
           cache,
           true,
@@ -47,7 +51,7 @@ export async function resolveConfig(options: {
       } else if (value.objectFrom) {
         resolvedValue = await resolveTemplateLiteral(
           value.objectFrom,
-          deepmerge(globalContext ?? {}, context ?? {}),
+          deepmerge(targetBaseContext ?? {}, context ?? {}),
           value.name,
           cache,
           true,
@@ -61,7 +65,7 @@ export async function resolveConfig(options: {
           resolve: value.resolve,
           path: value.templatePath,
           ignoreEmpty: value.ignoreEmpty,
-          context: deepmerge(globalContext ?? {}, context ?? {}),
+          context: deepmerge(targetBaseContext ?? {}, context ?? {}),
         });
       }
 

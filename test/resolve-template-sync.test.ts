@@ -52,6 +52,47 @@ test("sync template with env variable", () => {
   expect(resolved).toStrictEqual("test");
 });
 
+test("sync template env falls back to context when unset", () => {
+  const prev = process.env.RESOLVE_CONFIG_ENV_FALLBACK_TEST;
+  delete process.env.RESOLVE_CONFIG_ENV_FALLBACK_TEST;
+  try {
+    const resolved = resolveTemplateObjectSync("${env:RESOLVE_CONFIG_ENV_FALLBACK_TEST}", {
+      RESOLVE_CONFIG_ENV_FALLBACK_TEST: "from-context",
+    });
+    expect(resolved).toStrictEqual("from-context");
+  } finally {
+    if (prev !== undefined) {
+      process.env.RESOLVE_CONFIG_ENV_FALLBACK_TEST = prev;
+    }
+  }
+});
+
+test("sync template env prefers process.env over context", () => {
+  process.env.RESOLVE_CONFIG_ENV_FALLBACK_TEST2 = "from-env";
+  try {
+    const resolved = resolveTemplateObjectSync("${env:RESOLVE_CONFIG_ENV_FALLBACK_TEST2}", {
+      RESOLVE_CONFIG_ENV_FALLBACK_TEST2: "from-context",
+    });
+    expect(resolved).toStrictEqual("from-env");
+  } finally {
+    delete process.env.RESOLVE_CONFIG_ENV_FALLBACK_TEST2;
+  }
+});
+
+test("sync template env falls back to nested context path", () => {
+  const key = "a.b";
+  const prev = process.env[key];
+  delete process.env[key];
+  try {
+    const resolved = resolveTemplateObjectSync("${env:a.b}", { a: { b: "nested" } });
+    expect(resolved).toStrictEqual("nested");
+  } finally {
+    if (prev !== undefined) {
+      process.env[key] = prev;
+    }
+  }
+});
+
 test("sync template with env variables", () => {
   process.env.TEST = "test";
   const resolved = resolveTemplateObjectSync("${env:TEST}-thing");

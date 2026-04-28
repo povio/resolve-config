@@ -71,7 +71,9 @@ export function resolveTemplateLiteral(
   const [command, ...args] = value.trim().split(":");
   switch (command) {
     case "env": {
-      result = process.env[args.join(":")];
+      const key = args.join(":");
+      const fromEnv = process.env[key];
+      result = fromEnv !== undefined ? fromEnv : getFromPath(context, key);
       break;
     }
     case "context": {

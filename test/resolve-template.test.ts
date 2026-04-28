@@ -42,6 +42,21 @@ test("template with env variable", async () => {
   expect(resolved).toStrictEqual("test");
 });
 
+test("template env falls back to context when unset", async () => {
+  const prev = process.env.RESOLVE_CONFIG_ENV_FALLBACK_TEST_ASYNC;
+  delete process.env.RESOLVE_CONFIG_ENV_FALLBACK_TEST_ASYNC;
+  try {
+    const resolved = await resolveTemplateObject("${env:RESOLVE_CONFIG_ENV_FALLBACK_TEST_ASYNC}", {
+      RESOLVE_CONFIG_ENV_FALLBACK_TEST_ASYNC: "from-context",
+    });
+    expect(resolved).toStrictEqual("from-context");
+  } finally {
+    if (prev !== undefined) {
+      process.env.RESOLVE_CONFIG_ENV_FALLBACK_TEST_ASYNC = prev;
+    }
+  }
+});
+
 test("template with env variables", async () => {
   process.env.TEST = "test";
   const resolved = await resolveTemplateObject("${env:TEST}-thing");

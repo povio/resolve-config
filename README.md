@@ -185,6 +185,8 @@ configs:
 
 Template files are YAML, JSON, or `.env` shaped trees. String leaves may include placeholders matching `\$[a-z]*\{…}`.
 
+**`env:`** reads `process.env` for the name after the first `:`. If that variable is unset (`undefined`), the same name is read from the resolution context (same path rules as `context:`—use dots in the name for nesting, e.g. `env:service.name` matches `context.service.name`).
+
 **`context:`** reads a value from the resolution context (manifest `context`, `contextFile`, SDK `context`, plus `stage`). Use a property path with dots for nesting, e.g. `context:tenantId` or `context:aws.region`. After the first `:`, remaining colons are kept (same idea as `env:` for odd key names).
 
 ```yaml

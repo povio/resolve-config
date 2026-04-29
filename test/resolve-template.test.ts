@@ -1,5 +1,6 @@
 import { test, expect } from "vitest";
-import { resolveTemplateObject } from "../src/lib/resolve-template";
+import { resolveTemplate, resolveTemplateObject } from "../src/lib/resolve-template";
+import { loadContextFile } from "../src/lib/template";
 
 test("template with literal", async () => {
   const resolved = await resolveTemplateObject("simple string");
@@ -201,6 +202,36 @@ test("template with single property", async () => {
   expect(await resolveTemplateObject(tree, {}, "a1.b2.c3")).toStrictEqual(tree.a1.b2.c3);
   expect(await resolveTemplateObject(tree, {}, "a1.b2.c3.d4")).toStrictEqual("e");
   expect(await resolveTemplateObject(tree, {}, "a1.b2.c3.f4")).toStrictEqual(["a", "b", "c"]);
+});
+
+test("comment-only template throws a readable empty error", async () => {
+  await expect(
+    resolveTemplate({
+      cwd: __dirname,
+      path: ".config/staging.empty.template.yml",
+    }),
+  ).rejects.toThrow(/Template file '.*staging\.empty\.template\.yml' is empty/);
+});
+
+test("comment-only template with ignoreEmpty resolves to undefined", async () => {
+  const resolved = await resolveTemplate({
+    cwd: __dirname,
+    path: ".config/staging.empty.template.yml",
+    ignoreEmpty: true,
+  });
+  expect(resolved).toBeUndefined();
+});
+
+test("loadContextFile returns {} for comment-only yml", () => {
+  expect(loadContextFile(__dirname, ".config/staging.context.empty.fixture.yml")).toStrictEqual({});
+});
+
+test("loadContextFile returns {} for empty json", () => {
+  expect(loadContextFile(__dirname, ".config/staging.context.empty.fixture.json")).toStrictEqual({});
+});
+
+test("loadContextFile returns {} for comment-only env", () => {
+  expect(loadContextFile(__dirname, ".config/staging.context.empty.fixture.env")).toStrictEqual({});
 });
 
 const isSSMRunning = fetch("http://localhost:4566")

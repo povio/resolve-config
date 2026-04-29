@@ -1,5 +1,5 @@
 import { test, expect } from "vitest";
-import { resolveTemplateObjectSync } from "../src/lib/resolve-template-sync";
+import { resolveTemplateObjectSync, resolveTemplateSync } from "../src/lib/resolve-template-sync";
 
 test("sync template with literal", () => {
   const resolved = resolveTemplateObjectSync("simple string");
@@ -222,4 +222,22 @@ test("sync template with single property", () => {
   expect(resolveTemplateObjectSync(tree, {}, "a1.b2.c3")).toStrictEqual(tree.a1.b2.c3);
   expect(resolveTemplateObjectSync(tree, {}, "a1.b2.c3.d4")).toStrictEqual("e");
   expect(resolveTemplateObjectSync(tree, {}, "a1.b2.c3.f4")).toStrictEqual(["a", "b", "c"]);
+});
+
+test("sync comment-only template throws a readable empty error", () => {
+  expect(() =>
+    resolveTemplateSync({
+      cwd: __dirname,
+      path: ".config/staging.empty.template.yml",
+    }),
+  ).toThrow(/Template file '.*staging\.empty\.template\.yml' is empty/);
+});
+
+test("sync comment-only template with ignoreEmpty resolves to undefined", () => {
+  const resolved = resolveTemplateSync({
+    cwd: __dirname,
+    path: ".config/staging.empty.template.yml",
+    ignoreEmpty: true,
+  });
+  expect(resolved).toBeUndefined();
 });

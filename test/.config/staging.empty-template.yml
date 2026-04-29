@@ -1,0 +1,5 @@
+configs:
+  - name: with_empty_template
+    values:
+      - name: data
+        templatePath: .config/staging.empty.template.yml

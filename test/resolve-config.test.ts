@@ -162,6 +162,78 @@ test("target context field overrides contextFile for overlapping keys", async ()
   expect(resolved).toStrictEqual({ settings: { region: "override-region" } });
 });
 
+test("empty contextFile (yml comment-only) does not error and falls back to inline context", async () => {
+  const resolved = await resolveConfig({
+    cwd,
+    stage: "staging",
+    path: stagingManifestPath,
+    target: "with_empty_context_file_yml",
+    apply: false,
+  });
+
+  expect(resolved).toStrictEqual({ settings: { region: "from-context" } });
+});
+
+test("empty contextFile (json) does not error and falls back to inline context", async () => {
+  const resolved = await resolveConfig({
+    cwd,
+    stage: "staging",
+    path: stagingManifestPath,
+    target: "with_empty_context_file_json",
+    apply: false,
+  });
+
+  expect(resolved).toStrictEqual({ settings: { region: "from-context" } });
+});
+
+test("empty contextFile (env comment-only) does not error and falls back to inline context", async () => {
+  const resolved = await resolveConfig({
+    cwd,
+    stage: "staging",
+    path: stagingManifestPath,
+    target: "with_empty_context_file_env",
+    apply: false,
+  });
+
+  expect(resolved).toStrictEqual({ settings: { region: "from-context" } });
+});
+
+test("comment-only template throws a readable error", async () => {
+  await expect(
+    resolveConfig({
+      cwd,
+      stage: "staging",
+      path: ".config/staging.empty-template",
+      target: "with_empty_template",
+      apply: false,
+    }),
+  ).rejects.toThrow(/Template file '.*staging\.empty\.template\.yml' is empty/);
+});
+
+test("comment-only template with ignoreEmpty is skipped", async () => {
+  const resolved = await resolveConfig({
+    cwd,
+    stage: "staging",
+    path: stagingManifestPath,
+    target: "with_empty_template_ignored",
+    apply: false,
+  });
+
+  expect(resolved).toStrictEqual({ marker: "present" });
+});
+
+test("comment-only template throws a readable error (sync)", () => {
+  expect(() =>
+    resolveConfigSync({
+      cwd,
+      stage: "staging",
+      path: ".config/staging.empty-template",
+      target: "with_empty_template",
+      apply: false,
+    }),
+  ).toThrow(/Template file '.*staging\.empty\.template\.yml' is empty/);
+});
+
 test("missing template with ignoreEmpty still merges other values", async () => {
   const resolved = await resolveConfig({
     cwd,

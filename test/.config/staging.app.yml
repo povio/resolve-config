@@ -47,3 +47,35 @@ configs:
     values:
       - name: settings__region
         valueFrom: context:region
+
+  - name: with_empty_context_file_yml
+    contextFile: .config/staging.context.empty.fixture.yml
+    context:
+      region: from-context
+    values:
+      - name: settings__region
+        valueFrom: context:region
+
+  - name: with_empty_context_file_json
+    contextFile: .config/staging.context.empty.fixture.json
+    context:
+      region: from-context
+    values:
+      - name: settings__region
+        valueFrom: context:region
+
+  - name: with_empty_context_file_env
+    contextFile: .config/staging.context.empty.fixture.env
+    context:
+      region: from-context
+    values:
+      - name: settings__region
+        valueFrom: context:region
+
+  - name: with_empty_template_ignored
+    values:
+      - name: data
+        templatePath: .config/staging.empty.template.yml
+        ignoreEmpty: true
+      - name: marker
+        value: present

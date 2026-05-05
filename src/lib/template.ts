@@ -237,7 +237,8 @@ export function resolveTemplateContent(options: {
 export function loadContextFile(cwd: string, relativePath: string): PlainNestedType {
   const path = resolve(cwd, relativePath);
   if (!existsSync(path)) {
-    throw new Error(`Context file '${path}' not found`);
+    // no error on missing file
+    return {};
   }
   const content = readFileSync(path, "utf8");
   const extension = path.split(".").pop()?.toLowerCase();
